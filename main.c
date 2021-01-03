@@ -10,8 +10,15 @@ float weight;
 float size;
 float imc;
 int menu = 0;
+int w,h;
+int boucleIMC;
+char data[20];
+int returnKey = 0;
+float nTaille,nPoids,nIMC;
 TTF_Font *police = NULL;
+TTF_Font *fontIMC = NULL;
 SDL_Color CouleurTexte = {200,160,100};
+SDL_Color CouleurTexteIMC = {0,0,0};
 SDL_Surface *texte = NULL;
 SDL_Texture *label1;
 SDL_Texture *label2;
@@ -27,8 +34,60 @@ SDL_Rect menuRect2;
 SDL_Rect menuRect3;
 SDL_Rect menuRect4;
 SDL_Rect menuRect5;
+SDL_Texture *labelIMC1;
+SDL_Texture *labelIMC2;
+SDL_Texture *labelIMC3;
+SDL_Texture *inputIMC;
+SDL_Texture *outputIMC;
+SDL_Rect textRectLabelIMC1;
+SDL_Rect textRectLabelIMC2;
+SDL_Rect textRectLabelIMC3;
+SDL_Rect textRectSaisieIMC;
+SDL_Rect textRectInputIMC;
+SDL_Rect textRectOutputIMC;
+
+
+void formIMC(){
+
+    fontIMC = TTF_OpenFont("arial.ttf",24);
+
+// Affichage première question
+    texte = TTF_RenderText_Blended( fontIMC, "Entrez votre âge : ", CouleurTexteIMC );
+    labelIMC1 = SDL_CreateTextureFromSurface(renderer,texte);
+    SDL_QueryTexture(labelIMC1, NULL, NULL, &w, &h);
+    textRectLabelIMC1.x=50;textRectLabelIMC1.y=100;textRectLabelIMC1.w=w;textRectLabelIMC1.h=h;
+
+// Affichage deuxième question
+    texte = TTF_RenderText_Blended( fontIMC, "Entrez votre poids : ", CouleurTexteIMC );
+    labelIMC2 = SDL_CreateTextureFromSurface(renderer,texte);
+    SDL_QueryTexture(labelIMC2, NULL, NULL, &w, &h);
+    textRectLabelIMC2.x=50;textRectLabelIMC2.y=150;textRectLabelIMC2.w=w;textRectLabelIMC2.h=h;
+
+// Affichage troisième question
+    texte = TTF_RenderText_Blended( fontIMC, "Entrez votre taille : ", CouleurTexteIMC );
+    labelIMC3 = SDL_CreateTextureFromSurface(renderer,texte);
+    SDL_QueryTexture(labelIMC3, NULL, NULL, &w, &h);
+    textRectLabelIMC3.x=50;textRectLabelIMC3.y=200;textRectLabelIMC3.w=w;textRectLabelIMC3.h=h;
+
+    SDL_RenderCopy(renderer, labelIMC1, NULL, &textRectLabelIMC1);
+    SDL_RenderCopy(renderer, labelIMC2, NULL, &textRectLabelIMC2);
+    SDL_RenderCopy(renderer, labelIMC3, NULL, &textRectLabelIMC3);
+
+    boucleIMC = 1;
+    returnKey = 0;
+
+    SDL_SetRenderDrawColor(renderer,255,255,0,120);
+    textRectSaisieIMC.x=260;textRectSaisieIMC.y=98;textRectSaisieIMC.w=150;textRectSaisieIMC.h=29;
+    SDL_RenderDrawRect(renderer,&textRectSaisieIMC);
+    SDL_RenderPresent(renderer);
+    //strcpy(data,"");
+    SDL_StartTextInput();
+
+}
 
 void redrawMenu(){
+        SDL_SetRenderDrawColor(renderer,233,139,102,255); // Couleur
+        SDL_RenderClear(renderer);
         SDL_SetRenderDrawColor(renderer,34,56,67,255);
         SDL_RenderFillRect(renderer,&menuRect1);
         SDL_RenderFillRect(renderer,&menuRect2);
@@ -41,6 +100,8 @@ void redrawMenu(){
         SDL_RenderCopy(renderer,label4,NULL,&menuRect4);
         SDL_RenderCopy(renderer,label5,NULL,&menuRect5);
         SDL_RenderPresent(renderer);
+                SDL_RenderClear(renderer);
+
 }
 
 int main(int argc, char** argv)
@@ -74,8 +135,7 @@ int main(int argc, char** argv)
 
         SDL_SetRenderDrawColor(renderer,233,139,102,255); // Couleur
         SDL_RenderClear(renderer);
-
-        SDL_SetRenderDrawColor(renderer,34,56,67,255);
+        //SDL_SetRenderDrawColor(renderer,34,56,67,255);
 
         menuRect1.x = 0;
         menuRect1.y = 0;
@@ -107,7 +167,7 @@ int main(int argc, char** argv)
         texte = TTF_RenderText_Blended( police, "Menu", CouleurTexte );
         label1 = SDL_CreateTextureFromSurface(renderer, texte);
 
-        texte = TTF_RenderText_Blended( police, "Menu 2", CouleurTexte );
+        texte = TTF_RenderText_Blended( police, "IMC", CouleurTexte );
         label2 = SDL_CreateTextureFromSurface(renderer, texte);
 
         texte = TTF_RenderText_Blended( police, "Menu 3", CouleurTexte );
@@ -131,9 +191,25 @@ int main(int argc, char** argv)
             {
                 while ( SDL_PollEvent(&event) )
                 {
-                    if ( event.key.keysym.scancode == SDL_SCANCODE_ESCAPE )
+
+                    if(event.type == SDL_KEYDOWN)
                     {
-                        cont = 0;
+                        if ( event.key.keysym.scancode == SDL_SCANCODE_ESCAPE )
+                            {
+                                cont = 0;
+                            }
+                        if (event.key.keysym.sym == SDLK_KP_ENTER)
+                            {
+                                returnKey = 1;
+                            }
+                    }
+
+                    if(event.type == SDL_TEXTINPUT)
+                    {
+                        if (strchr("0123456789.",event.text.text[0])!=NULL){
+                           strcat(data, event.text.text);
+                        }
+
                     }
 
                     if(event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT){
@@ -153,6 +229,7 @@ int main(int argc, char** argv)
                             SDL_RenderFillRect(renderer,&menuRect2);
                             SDL_RenderCopy(renderer,label2,NULL,&menuRect2);
                             SDL_RenderPresent(renderer);
+                            formIMC();
                             menu = 2;
                         }
                         if(SDL_PointInRect(&mouse, &menuRect3)){
@@ -255,9 +332,61 @@ int main(int argc, char** argv)
                         SDL_SetWindowFullscreen(window,SDL_WINDOW_FULLSCREEN_DESKTOP);
                     }
 
-                    if(event.key.keysym.scancode == SDL_SCANCODE_G){
-                        SDL_UpdateWindowSurface(window);
-                    }
+
+                }
+                if (menu == 2 && boucleIMC < 4){
+
+                    texte = TTF_RenderText_Blended( fontIMC, data, CouleurTexteIMC );
+                    inputIMC = SDL_CreateTextureFromSurface(renderer,texte);
+                    SDL_QueryTexture(inputIMC, NULL, NULL, &w, &h);
+                    textRectInputIMC.x=265;textRectInputIMC.y=50+50*boucleIMC;textRectInputIMC.w=w;textRectInputIMC.h=h;
+                    SDL_RenderCopy(renderer, inputIMC, NULL, &textRectInputIMC);
+                    SDL_RenderPresent(renderer);
+
+                    if (returnKey == 1)
+                        {
+                        if (boucleIMC == 1)
+                            {
+                            //strcpy(strAge,data);
+                            //vider data
+                            strcpy(data,"");
+
+                            textRectSaisieIMC.x=260;textRectSaisieIMC.y=148;textRectSaisieIMC.w=150;textRectSaisieIMC.h=29;
+                            SDL_SetRenderDrawColor(renderer,255,255,0,120);
+                            SDL_RenderDrawRect(renderer,&textRectSaisieIMC);
+                            SDL_RenderPresent(renderer);
+                            returnKey = 0;
+                            }
+                        if (boucleIMC == 2)
+                            {
+                            //strcpy(strPoids,data);
+                            nPoids=atoi(data);
+                            strcpy(data,"");
+                            textRectSaisieIMC.x=260;textRectSaisieIMC.y=198;textRectSaisieIMC.w=150;textRectSaisieIMC.h=29;
+                            SDL_SetRenderDrawColor(renderer,255,255,0,120);
+                            SDL_RenderDrawRect(renderer,&textRectSaisieIMC);
+                            SDL_RenderPresent(renderer);
+                            returnKey = 0;
+                            }
+                        if (boucleIMC == 3)
+                            {
+                            //strcpy(strTaille,data);
+                            nTaille=atoi(data);
+
+                            nIMC=10000*nPoids/(nTaille*nTaille);
+                            sprintf(data,"%.2f",nIMC);
+                            texte = TTF_RenderText_Blended( fontIMC, data, CouleurTexteIMC );
+                            strcpy(data,"");
+                            outputIMC = SDL_CreateTextureFromSurface(renderer,texte);
+                            SDL_QueryTexture(outputIMC, NULL, NULL, &w, &h);
+                            textRectOutputIMC.x=230;textRectOutputIMC.y=300;textRectOutputIMC.w=w;textRectOutputIMC.h=h;
+                            SDL_RenderCopy(renderer, outputIMC, NULL, &textRectOutputIMC);
+                            SDL_RenderPresent(renderer);
+                            SDL_StopTextInput();
+
+                            }
+                        boucleIMC=boucleIMC+1;
+                        }
                 }
             }
 
