@@ -1,0 +1,46 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <winsock.h>
+#include <MYSQL/mysql.h>
+//#include <gtk/gtk.h>
+#include <SDL2/SDL.h>
+
+
+float weight;
+float size;
+float imc;
+
+int main(int argc, char** argv)
+{
+
+    SDL_Init(SDL_INIT_EVERYTHING);
+    SDL_Window* window;
+    window = SDL_CreateWindow("Patate", SDL_WINDOW_UNDEFINED, 0,640,480,SDL_WINDOW_RESIZABLE);
+    SDL_Delay(4000);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+
+    MYSQL mysql;
+    mysql_init(&mysql);
+    mysql_options(&mysql,MYSQL_READ_DEFAULT_GROUP,"option");
+
+    if(mysql_real_connect(&mysql,"localhost","root","root","projetc",0,NULL,0))
+       {
+            //Fermeture de MySQL
+           mysql_close(&mysql);
+       }
+    else
+    {
+       printf("Une erreur s'est produite lors de la connexion à la BDD !\n");
+    }
+
+    printf("Rentrer votre poids : ");
+    scanf("%f", &weight);
+    printf("Rentrer votre taille : ");
+    scanf("%f", &size);
+    size = size / 100;
+    imc = weight/(size*size);
+    printf("Votre IMC : %.1f", imc);
+
+    return 0;
+}
