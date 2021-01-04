@@ -12,7 +12,7 @@ float imc;
 int menu = 0;
 int w,h;
 int boucleIMC;
-char data[20];
+char data[100];
 int returnKey = 0;
 float nTaille,nPoids,nIMC;
 TTF_Font *police = NULL;
@@ -100,8 +100,6 @@ void redrawMenu(){
         SDL_RenderCopy(renderer,label4,NULL,&menuRect4);
         SDL_RenderCopy(renderer,label5,NULL,&menuRect5);
         SDL_RenderPresent(renderer);
-                SDL_RenderClear(renderer);
-
 }
 
 int main(int argc, char** argv)
@@ -198,15 +196,21 @@ int main(int argc, char** argv)
                             {
                                 cont = 0;
                             }
-                        if (event.key.keysym.sym == SDLK_KP_ENTER)
+                        if (event.key.keysym.sym == SDLK_KP_ENTER || event.key.keysym.sym == SDLK_RETURN)
                             {
-                                returnKey = 1;
+                                if(menu == 2 && strlen(data) > 0 && atoi(data) !=0) {
+                                    returnKey = 1;
+                                } else {
+                                    strcpy(data,"");
+                                    redrawMenu();
+                                    formIMC();
+                                }
                             }
                     }
 
-                    if(event.type == SDL_TEXTINPUT)
+                    if(event.type == SDL_TEXTINPUT && menu == 2)
                     {
-                        if (strchr("0123456789.",event.text.text[0])!=NULL){
+                        if (strchr("0123456789.",event.text.text[0])!=NULL && (strlen(data) < 3)){
                            strcat(data, event.text.text);
                         }
 
