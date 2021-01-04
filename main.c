@@ -1,11 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <winsock.h>
-#include <MYSQL/mysql.h>
+//#include <MYSQL/mysql.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
 
+int nMaxProfils=12;
+char Profils[25][15]; //Tableau de profils
+int nbProfils=0; //Nombre de profils
+int iProfils;
+SDL_Rect textRectProfils[10];
+char strProfil[15]=""; //Nom du profil sélectionné
 float weight;
 float size;
 float imc;
@@ -18,8 +24,9 @@ float nTaille,nPoids,nIMC;
 int iBoucle ;
 TTF_Font *police = NULL;
 TTF_Font *fontIMC = NULL;
-SDL_Color CouleurTexte = {200,160,100};
-SDL_Color CouleurTexteIMC = {0,0,0};
+SDL_Color CouleurTexte = {200,160,100,255};
+SDL_Color CouleurTexteIMC = {0,0,0,255};
+SDL_Color CouleurTexteBandeau = {200,50,78,255};
 SDL_Surface *texte = NULL;
 SDL_Texture *label1;
 SDL_Texture *label2;
@@ -47,10 +54,13 @@ SDL_Rect textRectLabelIMC3;
 SDL_Rect textRectLabelIMC4;
 SDL_Rect textRectLabelAff;
 SDL_Rect textRectSaisieIMC;
+SDL_Rect textRectSaisieProfil;
+SDL_Rect textRectBandeau;
 SDL_Rect textRectInputIMC;
 SDL_Rect textRectOutputIMC;
 
-void AfficheTexte(char *strTexte, int xPos,int yPos,int isProgress) {
+
+void AfficheTexte(char *strTexte,SDL_Color Couleur, int xPos,int yPos,int iSpeed) {
 
     int iBoucle;
     int iStep;
@@ -58,20 +68,23 @@ void AfficheTexte(char *strTexte, int xPos,int yPos,int isProgress) {
     SDL_Texture *tTexte;
     int width,height;
     SDL_Rect textRectOrigin,textRectDestination;
-    sTexte = TTF_RenderText_Blended( fontIMC, strTexte, CouleurTexteIMC );
+    sTexte = TTF_RenderText_Blended( fontIMC, strTexte, Couleur );
     tTexte = SDL_CreateTextureFromSurface(renderer,sTexte);
     SDL_QueryTexture(tTexte, NULL, NULL, &width, &height);
     textRectDestination.x=xPos;textRectDestination.y=yPos;textRectDestination.w=width;textRectDestination.h=height;
     //Rectangle de la texture à copier
     textRectOrigin.x=0;textRectOrigin.y=0;
-    if (isProgress == 0) {
+    if (iSpeed == 0) {
         iStep=width;
     }
     else{
-        iStep=2;
+        iStep=iSpeed;
     }
     for (iBoucle=0;iBoucle < width;iBoucle=iBoucle+iStep)
     {
+        if (iBoucle+iStep > width){
+            iStep=width-iBoucle;
+        }
         textRectDestination.x=xPos+iBoucle;
         textRectDestination.w=iStep;
         textRectOrigin.w=iStep;textRectOrigin.h=height;textRectOrigin.x=iBoucle;
@@ -80,30 +93,53 @@ void AfficheTexte(char *strTexte, int xPos,int yPos,int isProgress) {
     }
 }
 
+void formProfile(){
+
+    SDL_SetRenderDrawColor(renderer,255,255,255,255);
+    SDL_RenderFillRect(renderer,&menuRect1);
+    SDL_RenderCopy(renderer,label1,NULL,&menuRect1);
+    menu=1;
+
+    AfficheTexte("Création profil : ",CouleurTexteIMC,320,150,6);
+    SDL_SetRenderDrawColor(renderer,255,255,0,120);
+    textRectSaisieProfil.x=490;textRectSaisieProfil.y=150;textRectSaisieProfil.w=250;textRectSaisieProfil.h=29;
+    SDL_RenderDrawRect(renderer,&textRectSaisieProfil);
+    SDL_RenderPresent(renderer);
+    strcpy(data,"");
+    SDL_StartTextInput();
+    returnKey = 0;
+    for (iProfils=0;iProfils<nMaxProfils;iProfils++){
+        textRectProfils[iProfils].x=40;
+        textRectProfils[iProfils].y=98+iProfils*50;
+        textRectProfils[iProfils].w=250;
+        textRectProfils[iProfils].h=35;
+    }
+    for (iProfils=0;iProfils<nbProfils;iProfils++){
+        SDL_SetRenderDrawColor(renderer,255,120,0,255);
+        SDL_RenderFillRect(renderer,&textRectProfils[iProfils]);
+        AfficheTexte(Profils[iProfils],CouleurTexteIMC,50,100+50*iProfils,10);
+    }
+}
 
 void formIMC(){
 
-    fontIMC = TTF_OpenFont("arial.ttf",24);
+
 
 //Rectangle de la texture à copier
     textRectLabelAff.x=0;textRectLabelAff.y=0;
 
 // Affichage première question
-AfficheTexte("Entrez votre âge :",50,100,1);
+AfficheTexte("Entrez votre âge :",CouleurTexteIMC,50,100,7);
 
 // Affichage deuxième question
-AfficheTexte("Entrez votre poids (en kg) :",50,150,1);
+AfficheTexte("Entrez votre poids (en kg) :",CouleurTexteIMC,50,150,7);
 
 // Affichage troisième question
-AfficheTexte("Entrez votre taille (en cm) :",50,200,1);
+AfficheTexte("Entrez votre taille (en cm) :",CouleurTexteIMC,50,200,7);
 
 // Affichage réponse
 
 
-// Rendu des textes
-    SDL_RenderCopy(renderer, labelIMC1, NULL, &textRectLabelIMC1);
-    SDL_RenderCopy(renderer, labelIMC2, NULL, &textRectLabelIMC2);
-    SDL_RenderCopy(renderer, labelIMC3, NULL, &textRectLabelIMC3);
 
     boucleIMC = 1;
     returnKey = 0;
@@ -131,6 +167,12 @@ void redrawMenu(){
         SDL_RenderCopy(renderer,label3,NULL,&menuRect3);
         SDL_RenderCopy(renderer,label4,NULL,&menuRect4);
         SDL_RenderCopy(renderer,label5,NULL,&menuRect5);
+        textRectBandeau.x=0;textRectBandeau.y=740;textRectBandeau.w=790;textRectBandeau.h=60;
+        SDL_RenderFillRect(renderer,&textRectBandeau);
+        if (strcmp(strProfil,"") != 0){
+            AfficheTexte("Vous êtes connecté en tant que ",CouleurTexteBandeau,260,750,0);
+            AfficheTexte(strProfil,CouleurTexteBandeau,600,750,0);
+        }
         SDL_RenderPresent(renderer);
 }
 
@@ -138,7 +180,7 @@ int main(int argc, char** argv)
 {
 
     TTF_Init();
-
+    fontIMC = TTF_OpenFont("arial.ttf",24);
     /* Initialisation simple */
     if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_JOYSTICK) < 0) // Initialisation de la SDL
     {
@@ -209,10 +251,10 @@ int main(int argc, char** argv)
         texte = TTF_RenderText_Blended( police, "Menu 5", CouleurTexte );
         label5 = SDL_CreateTextureFromSurface(renderer, texte);
 
+
         redrawMenu();
 
-        SDL_RenderPresent(renderer);
-
+        formProfile();
         if (window)
         {
             char cont = 1; /* Détermine si on continue la boucle principale */
@@ -230,12 +272,17 @@ int main(int argc, char** argv)
                             }
                         if (event.key.keysym.sym == SDLK_KP_ENTER || event.key.keysym.sym == SDLK_RETURN)
                             {
-                                if(menu == 2 && strlen(data) > 0 && atoi(data) !=0) {
+                                if (menu == 2 ){
+                                    if(strlen(data) > 0 && atoi(data) !=0) {
+                                        returnKey = 1;
+                                        } else {
+                                            strcpy(data,"");
+                                            redrawMenu();
+                                            formIMC();
+                                        }
+                                }
+                                if (menu ==1 && strlen(data) > 0){
                                     returnKey = 1;
-                                } else {
-                                    strcpy(data,"");
-                                    redrawMenu();
-                                    formIMC();
                                 }
                             }
                     }
@@ -247,6 +294,14 @@ int main(int argc, char** argv)
                         }
 
                     }
+                    if(event.type == SDL_TEXTINPUT && menu == 1 && nbProfils < nMaxProfils)
+                    {
+                        if (strchr("AZERTYUIOPQSDFGHJKLMWXCVBNabcdefghijklmanopqrstuvwxyz-",event.text.text[0])!=NULL && (strlen(data) < 15)){
+                           strcat(data, event.text.text);
+                        }
+
+                    }
+
 
                     if(event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT){
                         mouse.x = event.button.x;
@@ -257,6 +312,7 @@ int main(int argc, char** argv)
                             SDL_RenderFillRect(renderer,&menuRect1);
                             SDL_RenderCopy(renderer,label1,NULL,&menuRect1);
                             SDL_RenderPresent(renderer);
+                            formProfile();
                             menu = 1;
                         }
                         if(SDL_PointInRect(&mouse, &menuRect2)){
@@ -292,6 +348,16 @@ int main(int argc, char** argv)
                             SDL_RenderPresent(renderer);
                             menu = 5;
                         }
+                        for (iProfils=0;iProfils<nbProfils;iProfils++){
+                            if (SDL_PointInRect(&mouse, &textRectProfils[iProfils])){
+                                strcpy(strProfil,Profils[iProfils]);
+                                SDL_SetRenderDrawColor(renderer,34,56,67,255);
+                                SDL_RenderFillRect(renderer,&textRectBandeau);
+                                AfficheTexte("Vous êtes connecté en tant que ",CouleurTexteBandeau,260,750,0);
+                                AfficheTexte(Profils[iProfils],CouleurTexteBandeau,600,750,0);
+                            }
+                        }
+
                     }
 
                     if(event.type == SDL_MOUSEMOTION){
@@ -364,15 +430,32 @@ int main(int argc, char** argv)
                         }
                     }
 
-                    if(event.key.keysym.scancode == SDL_SCANCODE_F){
-                        SDL_SetWindowFullscreen(window,SDL_WINDOW_FULLSCREEN_DESKTOP);
+                }
+                if (menu == 1){
+                    AfficheTexte(data,CouleurTexteIMC,495,150,0);
+                    if (returnKey == 1 && nbProfils < nMaxProfils){
+                        strcpy(Profils[nbProfils],data);
+                        strcpy(data,"");
+                        returnKey = 0;
+                        SDL_SetRenderDrawColor(renderer,255,120,0,255);
+                        SDL_RenderFillRect(renderer,&textRectProfils[nbProfils]);
+                        AfficheTexte(Profils[nbProfils],CouleurTexteIMC,50,100+50*nbProfils,5);
+                        nbProfils++;
+                        SDL_SetRenderDrawColor(renderer,233,139,102,255); // Couleur menu
+                        SDL_RenderFillRect(renderer,&textRectSaisieProfil);
+                        SDL_SetRenderDrawColor(renderer,255,255,0,120); //Couleur encadré saisie
+                        SDL_RenderDrawRect(renderer,&textRectSaisieProfil);
+                        SDL_RenderPresent(renderer);
+
+                    //redrawMenu();
+                    //formProfile();
                     }
 
-
                 }
+
                 if (menu == 2 && boucleIMC < 4){
 
-                    AfficheTexte(data,365,50+50*boucleIMC,0);
+                    AfficheTexte(data,CouleurTexteIMC,365,50+50*boucleIMC,0);
 
                     if (returnKey == 1)
                         {
@@ -406,8 +489,8 @@ int main(int argc, char** argv)
 
                             nIMC=10000*nPoids/(nTaille*nTaille);
                             sprintf(data,"%.2f",nIMC);
-                            AfficheTexte("Votre IMC est de :",50,300,1);
-                            AfficheTexte(data,250,300,1);
+                            AfficheTexte("Votre IMC est de :",CouleurTexteIMC,50,300,1);
+                            AfficheTexte(data,CouleurTexteIMC,250,300,1);
                             strcpy(data,"");
                             SDL_StopTextInput();
                             }
