@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <winsock.h>
-//#include <MYSQL/mysql.h>
+#include <MYSQL/mysql.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
@@ -10,8 +10,7 @@ int nMaxProfils=12;
 char Profils[25][15]; //Tableau de profils
 int nbProfils=0; //Nombre de profils
 int iProfils;
-SDL_Rect textRectProfils[10];
-char strProfil[15]=""; //Nom du profil sélectionné
+char strProfil[15]=""; //Nom du profil sÃ©lectionnÃ©
 float weight;
 float size;
 float imc;
@@ -20,49 +19,45 @@ int w,h;
 int boucleIMC;
 char data[100];
 int returnKey = 0;
-float nTaille,nPoids,nIMC;
-int iBoucle ;
+float nSize,nWeight,nIMC;
+int iLoop ;
 TTF_Font *police = NULL;
 TTF_Font *fontIMC = NULL;
-SDL_Color CouleurTexte = {200,160,100,255};
-SDL_Color CouleurTexteIMC = {0,0,0,255};
-SDL_Color CouleurTexteBandeau = {200,50,78,255};
+SDL_Color couleurTexte = {200,160,100,255};
+SDL_Color colorTextIMC = {0,0,0,255};
+SDL_Color colorTextFooter = {200,50,78,255};
+SDL_Color colorMenu = {34,56,67,255};
+SDL_Color colorInput = {255,255,0,255};
 SDL_Surface *texte = NULL;
 SDL_Texture *label1;
 SDL_Texture *label2;
 SDL_Texture *label3;
 SDL_Texture *label4;
 SDL_Texture *label5;
-SDL_Renderer* renderer; // Déclaration du renderer
-SDL_Window* window;
-SDL_Rect rectangle[5]; // Déclaration du tableau contenant les cases blanches
-SDL_Point mouse;
-SDL_Rect menuRect1;
-SDL_Rect menuRect2;
-SDL_Rect menuRect3;
-SDL_Rect menuRect4;
-SDL_Rect menuRect5;
 SDL_Texture *labelIMC1;
 SDL_Texture *labelIMC2;
 SDL_Texture *labelIMC3;
 SDL_Texture *labelIMC4;
 SDL_Texture *inputIMC;
 SDL_Texture *outputIMC;
-SDL_Rect textRectLabelIMC1;
-SDL_Rect textRectLabelIMC2;
-SDL_Rect textRectLabelIMC3;
-SDL_Rect textRectLabelIMC4;
+SDL_Renderer* renderer; // DÃ©claration du renderer
+SDL_Window* window;
+SDL_Point mouse;
+SDL_Rect rectangle[5]; // DÃ©claration du tableau contenant les cases blanches
+SDL_Rect textRectProfils[10];
+SDL_Rect menuRect1;
+SDL_Rect menuRect2;
+SDL_Rect menuRect3;
+SDL_Rect menuRect4;
+SDL_Rect menuRect5;
 SDL_Rect textRectLabelAff;
 SDL_Rect textRectSaisieIMC;
 SDL_Rect textRectSaisieProfil;
-SDL_Rect textRectBandeau;
-SDL_Rect textRectInputIMC;
-SDL_Rect textRectOutputIMC;
-
+SDL_Rect textRectFooter;
 
 void AfficheTexte(char *strTexte,SDL_Color Couleur, int xPos,int yPos,int iSpeed) {
 
-    int iBoucle;
+    int iLoop;
     int iStep;
     SDL_Surface *sTexte;
     SDL_Texture *tTexte;
@@ -72,7 +67,7 @@ void AfficheTexte(char *strTexte,SDL_Color Couleur, int xPos,int yPos,int iSpeed
     tTexte = SDL_CreateTextureFromSurface(renderer,sTexte);
     SDL_QueryTexture(tTexte, NULL, NULL, &width, &height);
     textRectDestination.x=xPos;textRectDestination.y=yPos;textRectDestination.w=width;textRectDestination.h=height;
-    //Rectangle de la texture à copier
+    //Rectangle de la texture Ã  copier
     textRectOrigin.x=0;textRectOrigin.y=0;
     if (iSpeed == 0) {
         iStep=width;
@@ -80,14 +75,14 @@ void AfficheTexte(char *strTexte,SDL_Color Couleur, int xPos,int yPos,int iSpeed
     else{
         iStep=iSpeed;
     }
-    for (iBoucle=0;iBoucle < width;iBoucle=iBoucle+iStep)
+    for (iLoop=0;iLoop < width;iLoop=iLoop+iStep)
     {
-        if (iBoucle+iStep > width){
-            iStep=width-iBoucle;
+        if (iLoop+iStep > width){
+            iStep=width-iLoop;
         }
-        textRectDestination.x=xPos+iBoucle;
+        textRectDestination.x=xPos+iLoop;
         textRectDestination.w=iStep;
-        textRectOrigin.w=iStep;textRectOrigin.h=height;textRectOrigin.x=iBoucle;
+        textRectOrigin.w=iStep;textRectOrigin.h=height;textRectOrigin.x=iLoop;
         SDL_RenderCopy(renderer, tTexte, &textRectOrigin, &textRectDestination);
         SDL_RenderPresent(renderer);
     }
@@ -95,13 +90,13 @@ void AfficheTexte(char *strTexte,SDL_Color Couleur, int xPos,int yPos,int iSpeed
 
 void formProfile(){
 
-    SDL_SetRenderDrawColor(renderer,255,255,255,255);
-    SDL_RenderFillRect(renderer,&menuRect1);
-    SDL_RenderCopy(renderer,label1,NULL,&menuRect1);
-    menu=1;
+    // SDL_SetRenderDrawColor(renderer,255,255,255,255);
+    // SDL_RenderFillRect(renderer,&menuRect1);
+    // SDL_RenderCopy(renderer,label1,NULL,&menuRect1);
+    // menu=1;
 
-    AfficheTexte("Création profil : ",CouleurTexteIMC,320,150,6);
-    SDL_SetRenderDrawColor(renderer,255,255,0,120);
+    AfficheTexte("CrÃ©ation profil : ",colorTextIMC,320,150,6);
+    SDL_SetRenderDrawColor(renderer,colorInput.r,colorInput.g,colorInput.b,colorInput.a); // Couleur du rectangle de saisie
     textRectSaisieProfil.x=490;textRectSaisieProfil.y=150;textRectSaisieProfil.w=250;textRectSaisieProfil.h=29;
     SDL_RenderDrawRect(renderer,&textRectSaisieProfil);
     SDL_RenderPresent(renderer);
@@ -117,34 +112,28 @@ void formProfile(){
     for (iProfils=0;iProfils<nbProfils;iProfils++){
         SDL_SetRenderDrawColor(renderer,255,120,0,255);
         SDL_RenderFillRect(renderer,&textRectProfils[iProfils]);
-        AfficheTexte(Profils[iProfils],CouleurTexteIMC,50,100+50*iProfils,10);
+        AfficheTexte(Profils[iProfils],colorTextIMC,50,100+50*iProfils,10);
     }
 }
 
 void formIMC(){
 
-
-
-//Rectangle de la texture à copier
+//Rectangle de la texture Ã  copier
     textRectLabelAff.x=0;textRectLabelAff.y=0;
 
-// Affichage première question
-AfficheTexte("Entrez votre âge :",CouleurTexteIMC,50,100,7);
+// Affichage premiÃ¨re question
+AfficheTexte("Entrez votre Ã¢ge :",colorTextIMC,50,100,7);
 
-// Affichage deuxième question
-AfficheTexte("Entrez votre poids (en kg) :",CouleurTexteIMC,50,150,7);
+// Affichage deuxiÃ¨me question
+AfficheTexte("Entrez votre poids (en kg) :",colorTextIMC,50,150,7);
 
-// Affichage troisième question
-AfficheTexte("Entrez votre taille (en cm) :",CouleurTexteIMC,50,200,7);
-
-// Affichage réponse
-
-
+// Affichage troisiÃ¨me question
+AfficheTexte("Entrez votre taille (en cm) :",colorTextIMC,50,200,7);
 
     boucleIMC = 1;
     returnKey = 0;
 
-    SDL_SetRenderDrawColor(renderer,255,255,0,120);
+    SDL_SetRenderDrawColor(renderer,colorInput.r,colorInput.g,colorInput.b,colorInput.a);
     textRectSaisieIMC.x=360;textRectSaisieIMC.y=98;textRectSaisieIMC.w=50;textRectSaisieIMC.h=29;
     SDL_RenderDrawRect(renderer,&textRectSaisieIMC);
     SDL_RenderPresent(renderer);
@@ -154,9 +143,9 @@ AfficheTexte("Entrez votre taille (en cm) :",CouleurTexteIMC,50,200,7);
 }
 
 void redrawMenu(){
-        SDL_SetRenderDrawColor(renderer,233,139,102,255); // Couleur
+        SDL_SetRenderDrawColor(renderer,233,139,102,255); // Couleur du fond
         SDL_RenderClear(renderer);
-        SDL_SetRenderDrawColor(renderer,34,56,67,255);
+        SDL_SetRenderDrawColor(renderer,colorMenu.r,colorMenu.g,colorMenu.b,colorMenu.a); // Couleur du menu
         SDL_RenderFillRect(renderer,&menuRect1);
         SDL_RenderFillRect(renderer,&menuRect2);
         SDL_RenderFillRect(renderer,&menuRect3);
@@ -167,11 +156,11 @@ void redrawMenu(){
         SDL_RenderCopy(renderer,label3,NULL,&menuRect3);
         SDL_RenderCopy(renderer,label4,NULL,&menuRect4);
         SDL_RenderCopy(renderer,label5,NULL,&menuRect5);
-        textRectBandeau.x=0;textRectBandeau.y=740;textRectBandeau.w=790;textRectBandeau.h=60;
-        SDL_RenderFillRect(renderer,&textRectBandeau);
+        textRectFooter.x=0;textRectFooter.y=740;textRectFooter.w=790;textRectFooter.h=60;
+        SDL_RenderFillRect(renderer,&textRectFooter);
         if (strcmp(strProfil,"") != 0){
-            AfficheTexte("Vous êtes connecté en tant que ",CouleurTexteBandeau,260,750,0);
-            AfficheTexte(strProfil,CouleurTexteBandeau,600,750,0);
+            AfficheTexte("Vous Ãªtes connectÃ© en tant que ",colorTextFooter,260,750,0);
+            AfficheTexte(strProfil,colorTextFooter,600,750,0);
         }
         SDL_RenderPresent(renderer);
 }
@@ -189,7 +178,7 @@ int main(int argc, char** argv)
     }
 
 {
-    // Création de la fenêtre :
+    // CrÃ©ation de la fenÃªtre :
         window = SDL_CreateWindow("Une fenetre SDL" , SDL_WINDOWPOS_CENTERED , SDL_WINDOWPOS_CENTERED , 790 , 800 , 0);
         if(window == NULL) // Gestion des erreurs
         {
@@ -197,8 +186,8 @@ int main(int argc, char** argv)
             return -1;
         }
 
-    // Création du renderer :
-        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC); // Création du renderer
+    // CrÃ©ation du renderer :
+        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC); // CrÃ©ation du renderer
         if(renderer == NULL) // Gestion des erreurs
         {
             printf("Erreur lors de la creation d'un renderer : %s",SDL_GetError());
@@ -236,19 +225,19 @@ int main(int argc, char** argv)
 
         police = TTF_OpenFont("arial.ttf",100);
 
-        texte = TTF_RenderText_Blended( police, "Menu", CouleurTexte );
+        texte = TTF_RenderText_Blended( police, "Menu", couleurTexte );
         label1 = SDL_CreateTextureFromSurface(renderer, texte);
 
-        texte = TTF_RenderText_Blended( police, "IMC", CouleurTexte );
+        texte = TTF_RenderText_Blended( police, "IMC", couleurTexte );
         label2 = SDL_CreateTextureFromSurface(renderer, texte);
 
-        texte = TTF_RenderText_Blended( police, "Menu 3", CouleurTexte );
+        texte = TTF_RenderText_Blended( police, "Menu 3", couleurTexte );
         label3 = SDL_CreateTextureFromSurface(renderer, texte);
 
-        texte = TTF_RenderText_Blended( police, "Menu 4", CouleurTexte );
+        texte = TTF_RenderText_Blended( police, "Menu 4", couleurTexte );
         label4 = SDL_CreateTextureFromSurface(renderer, texte);
 
-        texte = TTF_RenderText_Blended( police, "Menu 5", CouleurTexte );
+        texte = TTF_RenderText_Blended( police, "Menu 5", couleurTexte );
         label5 = SDL_CreateTextureFromSurface(renderer, texte);
 
 
@@ -257,7 +246,7 @@ int main(int argc, char** argv)
         formProfile();
         if (window)
         {
-            char cont = 1; /* Détermine si on continue la boucle principale */
+            char cont = 1; /* DÃ©termine si on continue la boucle principale */
             SDL_Event event;
             while ( cont != 0 )
             {
@@ -301,7 +290,6 @@ int main(int argc, char** argv)
                         }
 
                     }
-
 
                     if(event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT){
                         mouse.x = event.button.x;
@@ -352,9 +340,9 @@ int main(int argc, char** argv)
                             if (SDL_PointInRect(&mouse, &textRectProfils[iProfils])){
                                 strcpy(strProfil,Profils[iProfils]);
                                 SDL_SetRenderDrawColor(renderer,34,56,67,255);
-                                SDL_RenderFillRect(renderer,&textRectBandeau);
-                                AfficheTexte("Vous êtes connecté en tant que ",CouleurTexteBandeau,260,750,0);
-                                AfficheTexte(Profils[iProfils],CouleurTexteBandeau,600,750,0);
+                                SDL_RenderFillRect(renderer,&textRectFooter);
+                                AfficheTexte("Vous Ãªtes connectÃ© en tant que ",colorTextFooter,260,750,0);
+                                AfficheTexte(Profils[iProfils],colorTextFooter,600,750,0);
                             }
                         }
 
@@ -432,18 +420,18 @@ int main(int argc, char** argv)
 
                 }
                 if (menu == 1){
-                    AfficheTexte(data,CouleurTexteIMC,495,150,0);
+                    AfficheTexte(data,colorTextIMC,495,150,0);
                     if (returnKey == 1 && nbProfils < nMaxProfils){
                         strcpy(Profils[nbProfils],data);
                         strcpy(data,"");
                         returnKey = 0;
                         SDL_SetRenderDrawColor(renderer,255,120,0,255);
                         SDL_RenderFillRect(renderer,&textRectProfils[nbProfils]);
-                        AfficheTexte(Profils[nbProfils],CouleurTexteIMC,50,100+50*nbProfils,5);
+                        AfficheTexte(Profils[nbProfils],colorTextIMC,50,100+50*nbProfils,5);
                         nbProfils++;
                         SDL_SetRenderDrawColor(renderer,233,139,102,255); // Couleur menu
                         SDL_RenderFillRect(renderer,&textRectSaisieProfil);
-                        SDL_SetRenderDrawColor(renderer,255,255,0,120); //Couleur encadré saisie
+                        SDL_SetRenderDrawColor(renderer,255,255,0,120); //Couleur encadrÃ© saisie
                         SDL_RenderDrawRect(renderer,&textRectSaisieProfil);
                         SDL_RenderPresent(renderer);
 
@@ -455,7 +443,7 @@ int main(int argc, char** argv)
 
                 if (menu == 2 && boucleIMC < 4){
 
-                    AfficheTexte(data,CouleurTexteIMC,365,50+50*boucleIMC,0);
+                    AfficheTexte(data,colorTextIMC,365,50+50*boucleIMC,0);
 
                     if (returnKey == 1)
                         {
@@ -466,7 +454,7 @@ int main(int argc, char** argv)
                             strcpy(data,"");
 
                             textRectSaisieIMC.x=360;textRectSaisieIMC.y=148;textRectSaisieIMC.w=50;textRectSaisieIMC.h=29;
-                            SDL_SetRenderDrawColor(renderer,255,255,0,120);
+                            SDL_SetRenderDrawColor(renderer,colorInput.r,colorInput.g,colorInput.b,colorInput.a);
                             SDL_RenderDrawRect(renderer,&textRectSaisieIMC);
                             SDL_RenderPresent(renderer);
                             returnKey = 0;
@@ -474,10 +462,10 @@ int main(int argc, char** argv)
                         if (boucleIMC == 2)
                             {
                             //strcpy(strPoids,data);
-                            nPoids=atoi(data);
+                            nWeight=atoi(data);
                             strcpy(data,"");
                             textRectSaisieIMC.x=360;textRectSaisieIMC.y=198;textRectSaisieIMC.w=50;textRectSaisieIMC.h=29;
-                            SDL_SetRenderDrawColor(renderer,255,255,0,120);
+                            SDL_SetRenderDrawColor(renderer,colorInput.r,colorInput.g,colorInput.b,colorInput.a);
                             SDL_RenderDrawRect(renderer,&textRectSaisieIMC);
                             SDL_RenderPresent(renderer);
                             returnKey = 0;
@@ -485,12 +473,12 @@ int main(int argc, char** argv)
                         if (boucleIMC == 3)
                             {
                             //strcpy(strTaille,data);
-                            nTaille=atoi(data);
+                            nSize=atoi(data);
 
-                            nIMC=10000*nPoids/(nTaille*nTaille);
+                            nIMC=10000*nWeight/(nSize*nSize);
                             sprintf(data,"%.2f",nIMC);
-                            AfficheTexte("Votre IMC est de :",CouleurTexteIMC,50,300,1);
-                            AfficheTexte(data,CouleurTexteIMC,250,300,1);
+                            AfficheTexte("Votre IMC est de :",colorTextIMC,50,300,1);
+                            AfficheTexte(data,colorTextIMC,250,300,1);
                             strcpy(data,"");
                             SDL_StopTextInput();
                             }
@@ -502,13 +490,13 @@ int main(int argc, char** argv)
             SDL_DestroyWindow(window);
 
         } else {
-            fprintf(stderr,"Erreur de création de la fenêtre: %s\n",SDL_GetError());
+            fprintf(stderr,"Erreur de crÃ©ation de la fenÃªtre: %s\n",SDL_GetError());
         }
     }
 
     SDL_DestroyRenderer(renderer);
     SDL_Quit();
-    TTF_CloseFont(police); /* Doit être avant TTF_Quit() */
+    TTF_CloseFont(police); /* Doit etre avant TTF_Quit() */
     SDL_FreeSurface(texte);
     TTF_Quit();
 
@@ -524,7 +512,7 @@ int main(int argc, char** argv)
        }
     else
     {
-       printf("Une erreur s'est produite lors de la connexion à la BDD !\n");
+       printf("Une erreur s'est produite lors de la connexion ï¿½ la BDD !\n");
     }
 
     printf("Rentrer votre poids : ");
