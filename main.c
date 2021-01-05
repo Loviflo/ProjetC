@@ -94,10 +94,10 @@ void AfficheTexte(char *strTexte,SDL_Color Couleur, int xPos,int yPos,int iSpeed
 
 void formProfile(){
 
-    // SDL_SetRenderDrawColor(renderer,255,255,255,255);
-    // SDL_RenderFillRect(renderer,&menuRect1);
-    // SDL_RenderCopy(renderer,label1,NULL,&menuRect1);
-    // menu=1;
+    SDL_SetRenderDrawColor(renderer,255,255,255,255);
+    SDL_RenderFillRect(renderer,&menuRect1);
+    SDL_RenderCopy(renderer,label1,NULL,&menuRect1);
+    menu=1;
 
     AfficheTexte("Création profil : ",colorTextIMC,320,150,6);
     SDL_SetRenderDrawColor(renderer,colorInput.r,colorInput.g,colorInput.b,colorInput.a); // Couleur du rectangle de saisie
@@ -456,9 +456,9 @@ int main(int argc, char** argv)
                             //strcpy(strAge,data);
                             //vider data
                             strcpy(data,"");
-
-                            textRectSaisieIMC.x=360;textRectSaisieIMC.y=148;textRectSaisieIMC.w=50;textRectSaisieIMC.h=29;
+                            
                             SDL_SetRenderDrawColor(renderer,colorInput.r,colorInput.g,colorInput.b,colorInput.a);
+                            textRectSaisieIMC.x=360;textRectSaisieIMC.y=148;textRectSaisieIMC.w=50;textRectSaisieIMC.h=29;
                             SDL_RenderDrawRect(renderer,&textRectSaisieIMC);
                             SDL_RenderPresent(renderer);
                             returnKey = 0;
