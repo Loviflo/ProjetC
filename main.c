@@ -27,7 +27,11 @@ SDL_Color couleurTexte = {200,160,100,255};
 SDL_Color colorTextIMC = {0,0,0,255};
 SDL_Color colorTextFooter = {200,50,78,255};
 SDL_Color colorMenu = {34,56,67,255};
+SDL_Color colorMenuClicked = {255,255,255,255};
+SDL_Color colorMenuHover = {100,100,100,255};
 SDL_Color colorInput = {255,255,0,255};
+SDL_Color colorProfiles = {255,120,0,255};
+SDL_Color colorBackground = {233,139,102,255};
 SDL_Surface *texte = NULL;
 SDL_Texture *label1;
 SDL_Texture *label2;
@@ -110,7 +114,7 @@ void formProfile(){
         textRectProfils[iProfils].h=35;
     }
     for (iProfils=0;iProfils<nbProfils;iProfils++){
-        SDL_SetRenderDrawColor(renderer,255,120,0,255);
+        SDL_SetRenderDrawColor(renderer,colorProfiles.r,colorProfiles.g,colorProfiles.b,colorProfiles.a); // Couleur du rectangle des profils
         SDL_RenderFillRect(renderer,&textRectProfils[iProfils]);
         AfficheTexte(Profils[iProfils],colorTextIMC,50,100+50*iProfils,10);
     }
@@ -143,7 +147,7 @@ AfficheTexte("Entrez votre taille (en cm) :",colorTextIMC,50,200,7);
 }
 
 void redrawMenu(){
-        SDL_SetRenderDrawColor(renderer,233,139,102,255); // Couleur du fond
+        SDL_SetRenderDrawColor(renderer,colorBackground.r,colorBackground.g,colorBackground.b,colorBackground.a); // Couleur du fond
         SDL_RenderClear(renderer);
         SDL_SetRenderDrawColor(renderer,colorMenu.r,colorMenu.g,colorMenu.b,colorMenu.a); // Couleur du menu
         SDL_RenderFillRect(renderer,&menuRect1);
@@ -194,7 +198,7 @@ int main(int argc, char** argv)
             return -1;
         }
 
-        SDL_SetRenderDrawColor(renderer,233,139,102,255); // Couleur
+        SDL_SetRenderDrawColor(renderer,colorBackground.r,colorBackground.g,colorBackground.b,colorBackground.a); // Couleur
         SDL_RenderClear(renderer);
         //SDL_SetRenderDrawColor(renderer,34,56,67,255);
 
@@ -296,7 +300,7 @@ int main(int argc, char** argv)
                         mouse.y = event.button.y;
                         if(SDL_PointInRect(&mouse, &menuRect1)){
                             redrawMenu();
-                            SDL_SetRenderDrawColor(renderer,255,255,255,255);
+                            SDL_SetRenderDrawColor(renderer,colorMenuClicked.r,colorMenuClicked.g,colorMenuClicked.b,colorMenuClicked.a);
                             SDL_RenderFillRect(renderer,&menuRect1);
                             SDL_RenderCopy(renderer,label1,NULL,&menuRect1);
                             SDL_RenderPresent(renderer);
@@ -305,7 +309,7 @@ int main(int argc, char** argv)
                         }
                         if(SDL_PointInRect(&mouse, &menuRect2)){
                             redrawMenu();
-                            SDL_SetRenderDrawColor(renderer,255,255,255,255);
+                            SDL_SetRenderDrawColor(renderer,colorMenuClicked.r,colorMenuClicked.g,colorMenuClicked.b,colorMenuClicked.a);
                             SDL_RenderFillRect(renderer,&menuRect2);
                             SDL_RenderCopy(renderer,label2,NULL,&menuRect2);
                             SDL_RenderPresent(renderer);
@@ -314,7 +318,7 @@ int main(int argc, char** argv)
                         }
                         if(SDL_PointInRect(&mouse, &menuRect3)){
                             redrawMenu();
-                            SDL_SetRenderDrawColor(renderer,255,255,255,255);
+                            SDL_SetRenderDrawColor(renderer,colorMenuClicked.r,colorMenuClicked.g,colorMenuClicked.b,colorMenuClicked.a);
                             SDL_RenderFillRect(renderer,&menuRect3);
                             SDL_RenderCopy(renderer,label3,NULL,&menuRect3);
                             SDL_RenderPresent(renderer);
@@ -322,7 +326,7 @@ int main(int argc, char** argv)
                         }
                         if(SDL_PointInRect(&mouse, &menuRect4)){
                             redrawMenu();
-                            SDL_SetRenderDrawColor(renderer,255,255,255,255);
+                            SDL_SetRenderDrawColor(renderer,colorMenuClicked.r,colorMenuClicked.g,colorMenuClicked.b,colorMenuClicked.a);
                             SDL_RenderFillRect(renderer,&menuRect4);
                             SDL_RenderCopy(renderer,label4,NULL,&menuRect4);
                             SDL_RenderPresent(renderer);
@@ -330,7 +334,7 @@ int main(int argc, char** argv)
                         }
                         if(SDL_PointInRect(&mouse, &menuRect5)){
                             redrawMenu();
-                            SDL_SetRenderDrawColor(renderer,255,255,255,255);
+                            SDL_SetRenderDrawColor(renderer,colorMenuClicked.r,colorMenuClicked.g,colorMenuClicked.b,colorMenuClicked.a);
                             SDL_RenderFillRect(renderer,&menuRect5);
                             SDL_RenderCopy(renderer,label5,NULL,&menuRect5);
                             SDL_RenderPresent(renderer);
@@ -339,7 +343,7 @@ int main(int argc, char** argv)
                         for (iProfils=0;iProfils<nbProfils;iProfils++){
                             if (SDL_PointInRect(&mouse, &textRectProfils[iProfils])){
                                 strcpy(strProfil,Profils[iProfils]);
-                                SDL_SetRenderDrawColor(renderer,34,56,67,255);
+                                SDL_SetRenderDrawColor(renderer,colorMenu.r,colorMenu.g,colorMenu.b,colorMenu.a);
                                 SDL_RenderFillRect(renderer,&textRectFooter);
                                 AfficheTexte("Vous êtes connecté en tant que ",colorTextFooter,260,750,0);
                                 AfficheTexte(Profils[iProfils],colorTextFooter,600,750,0);
@@ -353,12 +357,12 @@ int main(int argc, char** argv)
                         mouse.y = event.motion.y;
                         if(menu != 1){
                             if(SDL_PointInRect(&mouse,&menuRect1)){
-                                SDL_SetRenderDrawColor(renderer,100,100,100,255);
+                                SDL_SetRenderDrawColor(renderer,colorMenuHover.r,colorMenuHover.g,colorMenuHover.b,colorMenuHover.a);
                                 SDL_RenderFillRect(renderer,&menuRect1);
                                 SDL_RenderCopy(renderer,label1,NULL,&menuRect1);
                                 SDL_RenderPresent(renderer);
                             } else {
-                                SDL_SetRenderDrawColor(renderer,34,56,67,255);
+                                SDL_SetRenderDrawColor(renderer,colorMenu.r,colorMenu.g,colorMenu.b,colorMenu.a);
                                 SDL_RenderFillRect(renderer,&menuRect1);
                                 SDL_RenderCopy(renderer,label1,NULL,&menuRect1);
                                 SDL_RenderPresent(renderer);
@@ -366,12 +370,12 @@ int main(int argc, char** argv)
                         }
                         if(menu != 2){
                             if(SDL_PointInRect(&mouse,&menuRect2)){
-                                SDL_SetRenderDrawColor(renderer,100,100,100,255);
+                                SDL_SetRenderDrawColor(renderer,colorMenuHover.r,colorMenuHover.g,colorMenuHover.b,colorMenuHover.a);
                                 SDL_RenderFillRect(renderer,&menuRect2);
                                 SDL_RenderCopy(renderer,label2,NULL,&menuRect2);
                                 SDL_RenderPresent(renderer);
                             } else {
-                                SDL_SetRenderDrawColor(renderer,34,56,67,255);
+                                SDL_SetRenderDrawColor(renderer,colorMenu.r,colorMenu.g,colorMenu.b,colorMenu.a);
                                 SDL_RenderFillRect(renderer,&menuRect2);
                                 SDL_RenderCopy(renderer,label2,NULL,&menuRect2);
                                 SDL_RenderPresent(renderer);
@@ -379,12 +383,12 @@ int main(int argc, char** argv)
                         }
                         if(menu != 3){
                             if(SDL_PointInRect(&mouse,&menuRect3)){
-                                SDL_SetRenderDrawColor(renderer,100,100,100,255);
+                                SDL_SetRenderDrawColor(renderer,colorMenuHover.r,colorMenuHover.g,colorMenuHover.b,colorMenuHover.a);
                                 SDL_RenderFillRect(renderer,&menuRect3);
                                 SDL_RenderCopy(renderer,label3,NULL,&menuRect3);
                                 SDL_RenderPresent(renderer);
                             } else {
-                                SDL_SetRenderDrawColor(renderer,34,56,67,255);
+                                SDL_SetRenderDrawColor(renderer,colorMenu.r,colorMenu.g,colorMenu.b,colorMenu.a);
                                 SDL_RenderFillRect(renderer,&menuRect3);
                                 SDL_RenderCopy(renderer,label3,NULL,&menuRect3);
                                 SDL_RenderPresent(renderer);
@@ -392,12 +396,12 @@ int main(int argc, char** argv)
                         }
                         if(menu != 4){
                             if(SDL_PointInRect(&mouse,&menuRect4)){
-                                SDL_SetRenderDrawColor(renderer,100,100,100,255);
+                                SDL_SetRenderDrawColor(renderer,colorMenuHover.r,colorMenuHover.g,colorMenuHover.b,colorMenuHover.a);
                                 SDL_RenderFillRect(renderer,&menuRect4);
                                 SDL_RenderCopy(renderer,label4,NULL,&menuRect4);
                                 SDL_RenderPresent(renderer);
                             } else {
-                                SDL_SetRenderDrawColor(renderer,34,56,67,255);
+                                SDL_SetRenderDrawColor(renderer,colorMenu.r,colorMenu.g,colorMenu.b,colorMenu.a);
                                 SDL_RenderFillRect(renderer,&menuRect4);
                                 SDL_RenderCopy(renderer,label4,NULL,&menuRect4);
                                 SDL_RenderPresent(renderer);
@@ -405,12 +409,12 @@ int main(int argc, char** argv)
                         }
                         if(menu != 5){
                             if(SDL_PointInRect(&mouse,&menuRect5)){
-                                SDL_SetRenderDrawColor(renderer,100,100,100,255);
+                                SDL_SetRenderDrawColor(renderer,colorMenuHover.r,colorMenuHover.g,colorMenuHover.b,colorMenuHover.a);
                                 SDL_RenderFillRect(renderer,&menuRect5);
                                 SDL_RenderCopy(renderer,label5,NULL,&menuRect5);
                                 SDL_RenderPresent(renderer);
                             } else {
-                                SDL_SetRenderDrawColor(renderer,34,56,67,255);
+                                SDL_SetRenderDrawColor(renderer,colorMenu.r,colorMenu.g,colorMenu.b,colorMenu.a);
                                 SDL_RenderFillRect(renderer,&menuRect5);
                                 SDL_RenderCopy(renderer,label5,NULL,&menuRect5);
                                 SDL_RenderPresent(renderer);
@@ -425,13 +429,13 @@ int main(int argc, char** argv)
                         strcpy(Profils[nbProfils],data);
                         strcpy(data,"");
                         returnKey = 0;
-                        SDL_SetRenderDrawColor(renderer,255,120,0,255);
+                        SDL_SetRenderDrawColor(renderer,colorProfiles.r,colorProfiles.g,colorProfiles.b,colorProfiles.a);
                         SDL_RenderFillRect(renderer,&textRectProfils[nbProfils]);
                         AfficheTexte(Profils[nbProfils],colorTextIMC,50,100+50*nbProfils,5);
                         nbProfils++;
-                        SDL_SetRenderDrawColor(renderer,233,139,102,255); // Couleur menu
+                        SDL_SetRenderDrawColor(renderer,colorBackground.r,colorBackground.g,colorBackground.b,colorBackground.a); // Couleur menu
                         SDL_RenderFillRect(renderer,&textRectSaisieProfil);
-                        SDL_SetRenderDrawColor(renderer,255,255,0,120); //Couleur encadré saisie
+                        SDL_SetRenderDrawColor(renderer,colorProfiles.r,colorProfiles.g,colorProfiles.b,colorProfiles.a); //Couleur encadré saisie
                         SDL_RenderDrawRect(renderer,&textRectSaisieProfil);
                         SDL_RenderPresent(renderer);
 
