@@ -1,37 +1,40 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <winsock.h>
-#include <MYSQL/mysql.h>
+//#include <MYSQL/mysql.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
 
-int nMaxProfils=12;
-char Profils[25][15]; //Tableau de profils
-int nbProfils=0; //Nombre de profils
-int iProfils;
-char strProfil[15]=""; //Nom du profil sélectionné
+int nMaxProfiles=12;
+char profiles[25][15]; //Tableau de profiles
+int nProfiles=0; //Nombre de profiles
+int iProfiles;
+char strProfile[15]=""; //Nom du profil sélectionné
 float weight;
 float size;
 float imc;
 int menu = 0;
 int w,h;
-int boucleIMC;
+int loopIMC;
 char data[100];
 int returnKey = 0;
 float nSize,nWeight,nIMC;
 int iLoop ;
-TTF_Font *police = NULL;
+TTF_Font *font = NULL;
 TTF_Font *fontIMC = NULL;
-SDL_Color couleurTexte = {200,160,100,255};
+SDL_Color colorTextMenu = {200,160,100,255};
 SDL_Color colorTextIMC = {0,0,0,255};
 SDL_Color colorTextFooter = {200,50,78,255};
+
 SDL_Color colorMenu = {34,56,67,255};
+SDL_Color colorFooter = {70,80,112,255};
 SDL_Color colorMenuClicked = {255,255,255,255};
 SDL_Color colorMenuHover = {100,100,100,255};
-SDL_Color colorInput = {255,255,0,255};
+SDL_Color colorInput = {255,255,0,120};
 SDL_Color colorProfiles = {255,120,0,255};
 SDL_Color colorBackground = {233,139,102,255};
+
 SDL_Surface *texte = NULL;
 SDL_Texture *label1;
 SDL_Texture *label2;
@@ -42,8 +45,6 @@ SDL_Texture *labelIMC1;
 SDL_Texture *labelIMC2;
 SDL_Texture *labelIMC3;
 SDL_Texture *labelIMC4;
-SDL_Texture *inputIMC;
-SDL_Texture *outputIMC;
 SDL_Renderer* renderer; // Déclaration du renderer
 SDL_Window* window;
 SDL_Point mouse;
@@ -55,10 +56,17 @@ SDL_Rect menuRect3;
 SDL_Rect menuRect4;
 SDL_Rect menuRect5;
 SDL_Rect textRectLabelAff;
-SDL_Rect textRectSaisieIMC;
-SDL_Rect textRectSaisieProfil;
+SDL_Rect textRectInputIMC[3];
+SDL_Rect textRectInputProfil;
 SDL_Rect textRectFooter;
 
+
+void TextErase(SDL_Rect rectErase,SDL_Color rectColor){
+                        SDL_SetRenderDrawColor(renderer,rectColor.r,rectColor.g,rectColor.b,rectColor.a); // Background color
+                        rectErase.x++;rectErase.y++;rectErase.w=rectErase.w-2;rectErase.h=rectErase.h-2;
+                        SDL_RenderFillRect(renderer,&rectErase);
+                        SDL_RenderPresent(renderer);
+}
 void AfficheTexte(char *strTexte,SDL_Color Couleur, int xPos,int yPos,int iSpeed) {
 
     int iLoop;
@@ -94,62 +102,80 @@ void AfficheTexte(char *strTexte,SDL_Color Couleur, int xPos,int yPos,int iSpeed
 
 void formProfile(){
 
-    SDL_SetRenderDrawColor(renderer,255,255,255,255);
+    SDL_SetRenderDrawColor(renderer,colorMenuClicked.r,colorMenuClicked.g,colorMenuClicked.b,colorMenuClicked.a);
     SDL_RenderFillRect(renderer,&menuRect1);
     SDL_RenderCopy(renderer,label1,NULL,&menuRect1);
     menu=1;
 
     AfficheTexte("Création profil : ",colorTextIMC,320,150,6);
-    SDL_SetRenderDrawColor(renderer,colorInput.r,colorInput.g,colorInput.b,colorInput.a); // Couleur du rectangle de saisie
-    textRectSaisieProfil.x=490;textRectSaisieProfil.y=150;textRectSaisieProfil.w=250;textRectSaisieProfil.h=29;
-    SDL_RenderDrawRect(renderer,&textRectSaisieProfil);
+    SDL_SetRenderDrawColor(renderer,colorInput.r,colorInput.g,colorInput.b,colorInput.a);
+    textRectInputProfil.x=490;textRectInputProfil.y=150;textRectInputProfil.w=250;textRectInputProfil.h=29;
+    SDL_RenderDrawRect(renderer,&textRectInputProfil);
     SDL_RenderPresent(renderer);
     strcpy(data,"");
     SDL_StartTextInput();
     returnKey = 0;
-    for (iProfils=0;iProfils<nMaxProfils;iProfils++){
-        textRectProfils[iProfils].x=40;
-        textRectProfils[iProfils].y=98+iProfils*50;
-        textRectProfils[iProfils].w=250;
-        textRectProfils[iProfils].h=35;
+    for (iProfiles=0;iProfiles<nMaxProfiles;iProfiles++){
+        textRectProfils[iProfiles].x=40;
+        textRectProfils[iProfiles].y=98+iProfiles*50;
+        textRectProfils[iProfiles].w=250;
+        textRectProfils[iProfiles].h=35;
     }
-    for (iProfils=0;iProfils<nbProfils;iProfils++){
-        SDL_SetRenderDrawColor(renderer,colorProfiles.r,colorProfiles.g,colorProfiles.b,colorProfiles.a); // Couleur du rectangle des profils
-        SDL_RenderFillRect(renderer,&textRectProfils[iProfils]);
-        AfficheTexte(Profils[iProfils],colorTextIMC,50,100+50*iProfils,10);
+    for (iProfiles=0;iProfiles<nProfiles;iProfiles++){
+        SDL_SetRenderDrawColor(renderer,colorProfiles.r,colorProfiles.g,colorProfiles.b,colorProfiles.a);
+        SDL_RenderFillRect(renderer,&textRectProfils[iProfiles]);
+        AfficheTexte(profiles[iProfiles],colorTextIMC,50,100+50*iProfiles,10);
     }
 }
 
 void formIMC(){
 
+    SDL_SetRenderDrawColor(renderer,colorMenuClicked.r,colorMenuClicked.g,colorMenuClicked.b,colorMenuClicked.a);
+    SDL_RenderFillRect(renderer,&menuRect2);
+    SDL_RenderCopy(renderer,label2,NULL,&menuRect2);
+    SDL_RenderPresent(renderer);
+    menu = 2;
+
 //Rectangle de la texture à copier
     textRectLabelAff.x=0;textRectLabelAff.y=0;
 
 // Affichage première question
-AfficheTexte("Entrez votre âge :",colorTextIMC,50,100,7);
+    AfficheTexte("Entrez votre âge :",colorTextIMC,50,100,7);
 
 // Affichage deuxième question
-AfficheTexte("Entrez votre poids (en kg) :",colorTextIMC,50,150,7);
+    AfficheTexte("Entrez votre poids (en kg) :",colorTextIMC,50,150,7);
 
 // Affichage troisième question
-AfficheTexte("Entrez votre taille (en cm) :",colorTextIMC,50,200,7);
+    AfficheTexte("Entrez votre taille (en cm) :",colorTextIMC,50,200,7);
 
-    boucleIMC = 1;
+// Affichage réponse
+
+    loopIMC = 1;
     returnKey = 0;
 
     SDL_SetRenderDrawColor(renderer,colorInput.r,colorInput.g,colorInput.b,colorInput.a);
-    textRectSaisieIMC.x=360;textRectSaisieIMC.y=98;textRectSaisieIMC.w=50;textRectSaisieIMC.h=29;
-    SDL_RenderDrawRect(renderer,&textRectSaisieIMC);
+    textRectInputIMC[0].x=360;textRectInputIMC[0].y=98;textRectInputIMC[0].w=50;textRectInputIMC[0].h=29;
+    textRectInputIMC[1].x=360;textRectInputIMC[1].y=148;textRectInputIMC[1].w=50;textRectInputIMC[1].h=29;
+    textRectInputIMC[2].x=360;textRectInputIMC[2].y=198;textRectInputIMC[2].w=50;textRectInputIMC[2].h=29;
+    SDL_RenderDrawRect(renderer,&textRectInputIMC[0]);
     SDL_RenderPresent(renderer);
     //strcpy(data,"");
     SDL_StartTextInput();
 
 }
 
+void settings(){
+    SDL_SetRenderDrawColor(renderer,colorMenuClicked.r,colorMenuClicked.g,colorMenuClicked.b,colorMenuClicked.a);
+    SDL_RenderFillRect(renderer,&menuRect3);
+    SDL_RenderCopy(renderer,label3,NULL,&menuRect3);
+    SDL_RenderPresent(renderer);
+    menu = 3;
+}
+
 void redrawMenu(){
-        SDL_SetRenderDrawColor(renderer,colorBackground.r,colorBackground.g,colorBackground.b,colorBackground.a); // Couleur du fond
+        SDL_SetRenderDrawColor(renderer,colorBackground.r,colorBackground.g,colorBackground.b,colorBackground.a); // Couleur
         SDL_RenderClear(renderer);
-        SDL_SetRenderDrawColor(renderer,colorMenu.r,colorMenu.g,colorMenu.b,colorMenu.a); // Couleur du menu
+        SDL_SetRenderDrawColor(renderer,colorMenu.r,colorMenu.g,colorMenu.b,colorMenu.a);
         SDL_RenderFillRect(renderer,&menuRect1);
         SDL_RenderFillRect(renderer,&menuRect2);
         SDL_RenderFillRect(renderer,&menuRect3);
@@ -160,11 +186,12 @@ void redrawMenu(){
         SDL_RenderCopy(renderer,label3,NULL,&menuRect3);
         SDL_RenderCopy(renderer,label4,NULL,&menuRect4);
         SDL_RenderCopy(renderer,label5,NULL,&menuRect5);
+        SDL_SetRenderDrawColor(renderer,colorFooter.r,colorFooter.g,colorFooter.b,colorFooter.a); // Couleur
         textRectFooter.x=0;textRectFooter.y=740;textRectFooter.w=790;textRectFooter.h=60;
         SDL_RenderFillRect(renderer,&textRectFooter);
-        if (strcmp(strProfil,"") != 0){
+        if (strcmp(strProfile,"") != 0){
             AfficheTexte("Vous êtes connecté en tant que ",colorTextFooter,260,750,0);
-            AfficheTexte(strProfil,colorTextFooter,600,750,0);
+            AfficheTexte(strProfile,colorTextFooter,600,750,0);
         }
         SDL_RenderPresent(renderer);
 }
@@ -227,21 +254,21 @@ int main(int argc, char** argv)
         menuRect5.w = 150;
         menuRect5.h = 50;
 
-        police = TTF_OpenFont("arial.ttf",100);
+        font = TTF_OpenFont("arial.ttf",100);
 
-        texte = TTF_RenderText_Blended( police, "Menu", couleurTexte );
+        texte = TTF_RenderText_Blended( font, "Connexion", colorTextMenu );
         label1 = SDL_CreateTextureFromSurface(renderer, texte);
 
-        texte = TTF_RenderText_Blended( police, "IMC", couleurTexte );
+        texte = TTF_RenderText_Blended( font, "IMC", colorTextMenu );
         label2 = SDL_CreateTextureFromSurface(renderer, texte);
 
-        texte = TTF_RenderText_Blended( police, "Menu 3", couleurTexte );
+        texte = TTF_RenderText_Blended( font, "Menu 3", colorTextMenu );
         label3 = SDL_CreateTextureFromSurface(renderer, texte);
 
-        texte = TTF_RenderText_Blended( police, "Menu 4", couleurTexte );
+        texte = TTF_RenderText_Blended( font, "Menu 4", colorTextMenu );
         label4 = SDL_CreateTextureFromSurface(renderer, texte);
 
-        texte = TTF_RenderText_Blended( police, "Menu 5", couleurTexte );
+        texte = TTF_RenderText_Blended( font, "Paramètres", colorTextMenu );
         label5 = SDL_CreateTextureFromSurface(renderer, texte);
 
 
@@ -263,15 +290,29 @@ int main(int argc, char** argv)
                             {
                                 cont = 0;
                             }
+                        if ( event.key.keysym.scancode == SDL_SCANCODE_BACKSPACE && menu == 1)
+                            {
+                                if (strlen(data)>0){
+                                    data[strlen(data)-1]='\0';
+                                    TextErase(textRectInputProfil,colorBackground);
+                                    AfficheTexte(data,colorTextIMC,495,150,0);
+                                }
+                            }
+                        if ( event.key.keysym.scancode == SDL_SCANCODE_BACKSPACE && menu == 2)
+                            {
+                                if (strlen(data)>0){
+                                    data[strlen(data)-1]='\0';
+                                    TextErase(textRectInputIMC[loopIMC-1],colorBackground);
+                                    AfficheTexte(data,colorTextIMC,365,50+50*loopIMC,0);
+                                }
+                            }
+
+
                         if (event.key.keysym.sym == SDLK_KP_ENTER || event.key.keysym.sym == SDLK_RETURN)
                             {
                                 if (menu == 2 ){
                                     if(strlen(data) > 0 && atoi(data) !=0) {
                                         returnKey = 1;
-                                        } else {
-                                            strcpy(data,"");
-                                            redrawMenu();
-                                            formIMC();
                                         }
                                 }
                                 if (menu ==1 && strlen(data) > 0){
@@ -284,45 +325,35 @@ int main(int argc, char** argv)
                     {
                         if (strchr("0123456789.",event.text.text[0])!=NULL && (strlen(data) < 3)){
                            strcat(data, event.text.text);
+                           AfficheTexte(data,colorTextIMC,365,50+50*loopIMC,0);
                         }
 
                     }
-                    if(event.type == SDL_TEXTINPUT && menu == 1 && nbProfils < nMaxProfils)
+                    if(event.type == SDL_TEXTINPUT && menu == 1 && nProfiles < nMaxProfiles)
                     {
                         if (strchr("AZERTYUIOPQSDFGHJKLMWXCVBNabcdefghijklmanopqrstuvwxyz-",event.text.text[0])!=NULL && (strlen(data) < 15)){
                            strcat(data, event.text.text);
+                           TextErase(textRectInputProfil,colorBackground);
+                           AfficheTexte(data,colorTextIMC,495,150,0);
                         }
 
                     }
+
 
                     if(event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT){
                         mouse.x = event.button.x;
                         mouse.y = event.button.y;
                         if(SDL_PointInRect(&mouse, &menuRect1)){
                             redrawMenu();
-                            SDL_SetRenderDrawColor(renderer,colorMenuClicked.r,colorMenuClicked.g,colorMenuClicked.b,colorMenuClicked.a);
-                            SDL_RenderFillRect(renderer,&menuRect1);
-                            SDL_RenderCopy(renderer,label1,NULL,&menuRect1);
-                            SDL_RenderPresent(renderer);
                             formProfile();
-                            menu = 1;
                         }
                         if(SDL_PointInRect(&mouse, &menuRect2)){
                             redrawMenu();
-                            SDL_SetRenderDrawColor(renderer,colorMenuClicked.r,colorMenuClicked.g,colorMenuClicked.b,colorMenuClicked.a);
-                            SDL_RenderFillRect(renderer,&menuRect2);
-                            SDL_RenderCopy(renderer,label2,NULL,&menuRect2);
-                            SDL_RenderPresent(renderer);
                             formIMC();
-                            menu = 2;
                         }
                         if(SDL_PointInRect(&mouse, &menuRect3)){
                             redrawMenu();
-                            SDL_SetRenderDrawColor(renderer,colorMenuClicked.r,colorMenuClicked.g,colorMenuClicked.b,colorMenuClicked.a);
-                            SDL_RenderFillRect(renderer,&menuRect3);
-                            SDL_RenderCopy(renderer,label3,NULL,&menuRect3);
-                            SDL_RenderPresent(renderer);
-                            menu = 3;
+                            settings();
                         }
                         if(SDL_PointInRect(&mouse, &menuRect4)){
                             redrawMenu();
@@ -340,13 +371,13 @@ int main(int argc, char** argv)
                             SDL_RenderPresent(renderer);
                             menu = 5;
                         }
-                        for (iProfils=0;iProfils<nbProfils;iProfils++){
-                            if (SDL_PointInRect(&mouse, &textRectProfils[iProfils])){
-                                strcpy(strProfil,Profils[iProfils]);
+                        for (iProfiles=0;iProfiles<nProfiles;iProfiles++){
+                            if (SDL_PointInRect(&mouse, &textRectProfils[iProfiles])){
+                                strcpy(strProfile,profiles[iProfiles]);
                                 SDL_SetRenderDrawColor(renderer,colorMenu.r,colorMenu.g,colorMenu.b,colorMenu.a);
                                 SDL_RenderFillRect(renderer,&textRectFooter);
                                 AfficheTexte("Vous êtes connecté en tant que ",colorTextFooter,260,750,0);
-                                AfficheTexte(Profils[iProfils],colorTextFooter,600,750,0);
+                                AfficheTexte(profiles[iProfiles],colorTextFooter,600,750,0);
                             }
                         }
 
@@ -424,57 +455,48 @@ int main(int argc, char** argv)
 
                 }
                 if (menu == 1){
-                    AfficheTexte(data,colorTextIMC,495,150,0);
-                    if (returnKey == 1 && nbProfils < nMaxProfils){
-                        strcpy(Profils[nbProfils],data);
+
+                    if (returnKey == 1 && nProfiles < nMaxProfiles){
+                        strcpy(profiles[nProfiles],data);
                         strcpy(data,"");
                         returnKey = 0;
                         SDL_SetRenderDrawColor(renderer,colorProfiles.r,colorProfiles.g,colorProfiles.b,colorProfiles.a);
-                        SDL_RenderFillRect(renderer,&textRectProfils[nbProfils]);
-                        AfficheTexte(Profils[nbProfils],colorTextIMC,50,100+50*nbProfils,5);
-                        nbProfils++;
-                        SDL_SetRenderDrawColor(renderer,colorBackground.r,colorBackground.g,colorBackground.b,colorBackground.a); // Couleur menu
-                        SDL_RenderFillRect(renderer,&textRectSaisieProfil);
-                        SDL_SetRenderDrawColor(renderer,colorProfiles.r,colorProfiles.g,colorProfiles.b,colorProfiles.a); //Couleur encadré saisie
-                        SDL_RenderDrawRect(renderer,&textRectSaisieProfil);
-                        SDL_RenderPresent(renderer);
-
-                    //redrawMenu();
-                    //formProfile();
+                        SDL_RenderFillRect(renderer,&textRectProfils[nProfiles]);
+                        AfficheTexte(profiles[nProfiles],colorTextIMC,50,100+50*nProfiles,5);
+                        nProfiles++;
+                        //suppression caractères
+                        TextErase(textRectInputProfil,colorBackground);
                     }
 
                 }
 
-                if (menu == 2 && boucleIMC < 4){
+                if (menu == 2 && loopIMC < 4){
 
-                    AfficheTexte(data,colorTextIMC,365,50+50*boucleIMC,0);
 
                     if (returnKey == 1)
                         {
-                        if (boucleIMC == 1)
+                        if (loopIMC == 1)
                             {
                             //strcpy(strAge,data);
                             //vider data
                             strcpy(data,"");
-                            
+
                             SDL_SetRenderDrawColor(renderer,colorInput.r,colorInput.g,colorInput.b,colorInput.a);
-                            textRectSaisieIMC.x=360;textRectSaisieIMC.y=148;textRectSaisieIMC.w=50;textRectSaisieIMC.h=29;
-                            SDL_RenderDrawRect(renderer,&textRectSaisieIMC);
+                            SDL_RenderDrawRect(renderer,&textRectInputIMC[loopIMC]);
                             SDL_RenderPresent(renderer);
                             returnKey = 0;
                             }
-                        if (boucleIMC == 2)
+                        if (loopIMC == 2)
                             {
                             //strcpy(strPoids,data);
                             nWeight=atoi(data);
                             strcpy(data,"");
-                            textRectSaisieIMC.x=360;textRectSaisieIMC.y=198;textRectSaisieIMC.w=50;textRectSaisieIMC.h=29;
                             SDL_SetRenderDrawColor(renderer,colorInput.r,colorInput.g,colorInput.b,colorInput.a);
-                            SDL_RenderDrawRect(renderer,&textRectSaisieIMC);
+                            SDL_RenderDrawRect(renderer,&textRectInputIMC[loopIMC]);
                             SDL_RenderPresent(renderer);
                             returnKey = 0;
                             }
-                        if (boucleIMC == 3)
+                        if (loopIMC == 3)
                             {
                             //strcpy(strTaille,data);
                             nSize=atoi(data);
@@ -486,7 +508,7 @@ int main(int argc, char** argv)
                             strcpy(data,"");
                             SDL_StopTextInput();
                             }
-                        boucleIMC=boucleIMC+1;
+                        loopIMC=loopIMC+1;
                         }
                 }
             }
@@ -500,7 +522,7 @@ int main(int argc, char** argv)
 
     SDL_DestroyRenderer(renderer);
     SDL_Quit();
-    TTF_CloseFont(police); /* Doit etre avant TTF_Quit() */
+    TTF_CloseFont(font); /* Doit être avant TTF_Quit() */
     SDL_FreeSurface(texte);
     TTF_Quit();
 
@@ -516,7 +538,7 @@ int main(int argc, char** argv)
        }
     else
     {
-       printf("Une erreur s'est produite lors de la connexion � la BDD !\n");
+       printf("Une erreur s'est produite lors de la connexion à la BDD !\n");
     }
 
     printf("Rentrer votre poids : ");
