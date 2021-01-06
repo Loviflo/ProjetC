@@ -22,6 +22,9 @@ int returnKey = 0;
 float nSize,nWeight,nIMC;
 int iLoop ;
 int movement = 1;
+int theme = 1;
+int inputProfileX = 220;
+int inputProfileY = 100;
 TTF_Font *fontButton = NULL;
 TTF_Font *fontText = NULL;
 SDL_Color colorTextMenuSelected = {0,0,0,255};
@@ -66,6 +69,9 @@ SDL_Rect settingsRectNo;
 SDL_Rect settingsRectTheme1;
 SDL_Rect settingsRectTheme2;
 SDL_Rect settingsRectTheme3;
+SDL_Rect settingsRectTheme4;
+SDL_Rect settingsRectTheme5;
+SDL_Rect settingsRectTheme6;
 
 void eraseText(SDL_Rect rectErase,SDL_Color rectColor){
     SDL_SetRenderDrawColor(renderer,rectColor.r,rectColor.g,rectColor.b,rectColor.a); // Background fontColor
@@ -74,12 +80,12 @@ void eraseText(SDL_Rect rectErase,SDL_Color rectColor){
     SDL_RenderPresent(renderer);
 }
 
-void displayTextButton(char *strTexte,SDL_Color fontColor,TTF_Font *font,SDL_Rect rect){
+void displayTextButton(char *strText,SDL_Color fontColor,TTF_Font *font,SDL_Rect rect){
     SDL_Surface *sTexte;
     SDL_Texture *tTexte;
     int width,height;
     SDL_Rect textRectDestination;
-    sTexte = TTF_RenderText_Blended( fontText, strTexte, fontColor );
+    sTexte = TTF_RenderText_Blended( fontText, strText, fontColor );
     tTexte = SDL_CreateTextureFromSurface(renderer,sTexte);
     SDL_QueryTexture(tTexte, NULL, NULL, &width, &height);
     textRectDestination.x=rect.x+rect.w/2-width/2;
@@ -90,7 +96,7 @@ void displayTextButton(char *strTexte,SDL_Color fontColor,TTF_Font *font,SDL_Rec
     SDL_RenderPresent(renderer);
 }
 
-void displayText(char *strTexte,SDL_Color fontColor, int xPos,int yPos,int iSpeed) {
+void displayText(char *strText,SDL_Color fontColor, int xPos,int yPos,int iSpeed) {
 
     int iLoop;
     int iStep;
@@ -98,7 +104,7 @@ void displayText(char *strTexte,SDL_Color fontColor, int xPos,int yPos,int iSpee
     SDL_Texture *tTexte;
     int width,height;
     SDL_Rect textRectOrigin,textRectDestination;
-    sTexte = TTF_RenderText_Blended( fontText, strTexte, fontColor );
+    sTexte = TTF_RenderText_Blended( fontText, strText, fontColor );
     tTexte = SDL_CreateTextureFromSurface(renderer,sTexte);
     SDL_QueryTexture(tTexte, NULL, NULL, &width, &height);
     textRectDestination.x=xPos;textRectDestination.y=yPos;textRectDestination.w=width;textRectDestination.h=height;
@@ -141,10 +147,95 @@ void redrawMenu(){
     textRectFooter.x=0;textRectFooter.y=740;textRectFooter.w=800;textRectFooter.h=60;
     SDL_RenderFillRect(renderer,&textRectFooter);
     if (strcmp(strProfile,"") != 0){
-        displayText("Vous êtes connecté en tant que ",colorTextLight,260,750,0*movement);
-        displayText(strProfile,colorTextLight,600,750,0*movement);
+        displayText("Vous êtes connecté en tant que ",colorTextDark,312,755,0*movement);
+        displayText(strProfile,colorTextDark,600,755,0*movement);
+    } else {
+        displayText("Vous n'êtes pas connecté",colorTextDark,312,755,0*movement);
     }
     SDL_RenderPresent(renderer);
+}
+
+void mouseMotion(char *text, SDL_Rect rect, int ifOrElse) {
+    if (ifOrElse == 0) {
+        SDL_SetRenderDrawColor(renderer,colorMenuHover.r,colorMenuHover.g,colorMenuHover.b,colorMenuHover.a);
+        SDL_RenderFillRect(renderer,&rect);
+        displayTextButton(text,colorTextMenuUnselected,fontButton,rect);
+        SDL_RenderPresent(renderer);
+    } else {
+        SDL_SetRenderDrawColor(renderer,colorMenu.r,colorMenu.g,colorMenu.b,colorMenu.a);
+        SDL_RenderFillRect(renderer,&rect);
+        displayTextButton(text,colorTextMenuUnselected,fontButton,rect);
+        SDL_RenderPresent(renderer);
+    }
+}
+
+void themes(int theme){
+    if(theme == 1){
+        colorMenu.r = 57; colorMenu.g = 62; colorMenu.b = 65; colorMenu.a = 255;
+        colorMenuClicked.r = 217; colorMenuClicked.g = 208; colorMenuClicked.b = 222; colorMenuClicked.a = 255;
+        colorInput.r = 255; colorInput.g = 147; colorInput.b = 79; colorInput.a = 255;
+        colorProfiles.r = 188; colorProfiles.g = 141; colorProfiles.b = 160; colorProfiles.a = 255;
+        colorBackground.r = 180; colorBackground.g = 194; colorBackground.b = 146; colorBackground.a = 255;
+        colorTextMenuSelected.r = 0; colorTextMenuSelected.g = 0; colorTextMenuSelected.b = 0; colorTextMenuSelected.a = 255;
+        colorTextMenuUnselected.r = 255; colorTextMenuUnselected.g = 255; colorTextMenuUnselected.b = 255; colorTextMenuUnselected.a = 255;
+        colorTextLight.r = 0; colorTextLight.g = 0; colorTextLight.b = 0; colorTextLight.a = 255;
+        colorTextDark.r = 255; colorTextDark.g = 255; colorTextDark.b = 255; colorTextDark.a = 255;
+    }
+    if(theme == 2){
+        colorMenu.r = 58; colorMenu.g = 46; colorMenu.b = 57; colorMenu.a = 255;
+        colorMenuClicked.r = 30; colorMenuClicked.g = 85; colorMenuClicked.b = 92; colorMenuClicked.a = 255;
+        colorInput.r = 241; colorInput.g = 81; colorInput.b = 82; colorInput.a = 255;
+        colorProfiles.r = 39; colorProfiles.g = 154; colorProfiles.b = 241; colorProfiles.a = 255;
+        colorBackground.r = 201; colorBackground.g = 206; colorBackground.b = 189; colorBackground.a = 255;
+        colorTextMenuSelected.r = 255; colorTextMenuSelected.g = 255; colorTextMenuSelected.b = 255; colorTextMenuSelected.a = 255;
+        colorTextMenuUnselected.r = 255; colorTextMenuUnselected.g = 255; colorTextMenuUnselected.b = 255; colorTextMenuUnselected.a = 255;
+        colorTextLight.r = 0; colorTextLight.g = 0; colorTextLight.b = 0; colorTextLight.a = 255;
+        colorTextDark.r = 255; colorTextDark.g = 255; colorTextDark.b = 255; colorTextDark.a = 255;
+    }
+    if(theme == 3){
+        colorMenu.r = 236; colorMenu.g = 229; colorMenu.b = 240; colorMenu.a = 255;
+        colorMenuClicked.r = 45; colorMenuClicked.g = 30; colorMenuClicked.b = 47; colorMenuClicked.a = 255;
+        colorInput.r = 247; colorInput.g = 179; colorInput.b = 43; colorInput.a = 255;
+        colorProfiles.r = 132; colorProfiles.g = 108; colorProfiles.b = 91; colorProfiles.a = 255;
+        colorBackground.r = 116; colorBackground.g = 119; colorBackground.b = 107; colorBackground.a = 255;
+        colorTextMenuSelected.r = 255; colorTextMenuSelected.g = 255; colorTextMenuSelected.b = 255; colorTextMenuSelected.a = 255;
+        colorTextMenuUnselected.r = 0; colorTextMenuUnselected.g = 0; colorTextMenuUnselected.b = 0; colorTextMenuUnselected.a = 255;
+        colorTextLight.r = 255; colorTextLight.g = 255; colorTextLight.b = 255; colorTextLight.a = 255;
+        colorTextDark.r = 0; colorTextDark.g = 0; colorTextDark.b = 0; colorTextDark.a = 255;
+    }
+    if(theme == 4){
+        colorMenu.r = 236; colorMenu.g = 229; colorMenu.b = 240; colorMenu.a = 255;
+        colorMenuClicked.r = 45; colorMenuClicked.g = 30; colorMenuClicked.b = 47; colorMenuClicked.a = 255;
+        colorInput.r = 247; colorInput.g = 179; colorInput.b = 43; colorInput.a = 255;
+        colorProfiles.r = 132; colorProfiles.g = 108; colorProfiles.b = 91; colorProfiles.a = 255;
+        colorBackground.r = 116; colorBackground.g = 119; colorBackground.b = 107; colorBackground.a = 255;
+        colorTextMenuSelected.r = 255; colorTextMenuSelected.g = 255; colorTextMenuSelected.b = 255; colorTextMenuSelected.a = 255;
+        colorTextMenuUnselected.r = 0; colorTextMenuUnselected.g = 0; colorTextMenuUnselected.b = 0; colorTextMenuUnselected.a = 255;
+        colorTextLight.r = 0; colorTextLight.g = 0; colorTextLight.b = 0; colorTextLight.a = 255;
+        colorTextDark.r = 255; colorTextDark.g = 255; colorTextDark.b = 0; colorTextDark.a = 255;
+    }
+    if(theme == 5){
+        colorMenu.r = 236; colorMenu.g = 229; colorMenu.b = 240; colorMenu.a = 255;
+        colorMenuClicked.r = 45; colorMenuClicked.g = 30; colorMenuClicked.b = 47; colorMenuClicked.a = 255;
+        colorInput.r = 247; colorInput.g = 179; colorInput.b = 43; colorInput.a = 255;
+        colorProfiles.r = 132; colorProfiles.g = 108; colorProfiles.b = 91; colorProfiles.a = 255;
+        colorBackground.r = 116; colorBackground.g = 119; colorBackground.b = 107; colorBackground.a = 255;
+        colorTextMenuSelected.r = 255; colorTextMenuSelected.g = 255; colorTextMenuSelected.b = 255; colorTextMenuSelected.a = 255;
+        colorTextMenuUnselected.r = 0; colorTextMenuUnselected.g = 0; colorTextMenuUnselected.b = 0; colorTextMenuUnselected.a = 255;
+        colorTextLight.r = 0; colorTextLight.g = 0; colorTextLight.b = 0; colorTextLight.a = 255;
+        colorTextDark.r = 255; colorTextDark.g = 255; colorTextDark.b = 255; colorTextDark.a = 255;
+    }
+    if(theme == 6){
+        colorMenu.r = 236; colorMenu.g = 229; colorMenu.b = 240; colorMenu.a = 255;
+        colorMenuClicked.r = 45; colorMenuClicked.g = 30; colorMenuClicked.b = 47; colorMenuClicked.a = 255;
+        colorInput.r = 247; colorInput.g = 179; colorInput.b = 43; colorInput.a = 255;
+        colorProfiles.r = 132; colorProfiles.g = 108; colorProfiles.b = 91; colorProfiles.a = 255;
+        colorBackground.r = 116; colorBackground.g = 119; colorBackground.b = 107; colorBackground.a = 255;
+        colorTextMenuSelected.r = 255; colorTextMenuSelected.g = 255; colorTextMenuSelected.b = 255; colorTextMenuSelected.a = 255;
+        colorTextMenuUnselected.r = 0; colorTextMenuUnselected.g = 0; colorTextMenuUnselected.b = 0; colorTextMenuUnselected.a = 255;
+        colorTextLight.r = 0; colorTextLight.g = 0; colorTextLight.b = 0; colorTextLight.a = 255;
+        colorTextDark.r = 255; colorTextDark.g = 255; colorTextDark.b = 255; colorTextDark.a = 255;
+    }
 }
 
 void formProfile(){ // Premier menu
@@ -154,24 +245,25 @@ void formProfile(){ // Premier menu
     displayTextButton("Connexion",colorTextMenuSelected,fontButton,menuRect1);
     menu=1;
 
-    displayText("Création profil : ",colorTextLight,320,150,7*movement);
+    displayText("Création du profil : ",colorTextLight,50,100,7*movement);
     SDL_SetRenderDrawColor(renderer,colorInput.r,colorInput.g,colorInput.b,colorInput.a);
-    textRectInputProfil.x=490;textRectInputProfil.y=150;textRectInputProfil.w=250;textRectInputProfil.h=29;
+    textRectInputProfil.x=inputProfileX;textRectInputProfil.y=inputProfileY - 2;textRectInputProfil.w=260;textRectInputProfil.h=29;
     SDL_RenderDrawRect(renderer,&textRectInputProfil);
     SDL_RenderPresent(renderer);
     strcpy(data,"");
     SDL_StartTextInput();
     returnKey = 0;
+    displayText("Sélection du profil",colorTextLight,500,100,7*movement);
     for (iProfiles=0;iProfiles<nMaxProfiles;iProfiles++){
-        textRectProfils[iProfiles].x=40;
-        textRectProfils[iProfiles].y=98+iProfiles*50;
-        textRectProfils[iProfiles].w=250;
+        textRectProfils[iProfiles].x=500;
+        textRectProfils[iProfiles].y=145+iProfiles*50;
+        textRectProfils[iProfiles].w=260;
         textRectProfils[iProfiles].h=35;
     }
     for (iProfiles=0;iProfiles<nProfiles;iProfiles++){
         SDL_SetRenderDrawColor(renderer,colorProfiles.r,colorProfiles.g,colorProfiles.b,colorProfiles.a);
         SDL_RenderFillRect(renderer,&textRectProfils[iProfiles]);
-        displayText(profiles[iProfiles],colorTextLight,50,100+50*iProfiles,10*movement);
+        displayText(profiles[iProfiles],colorTextLight,510,100+50*iProfiles,10*movement);
     }
 }
 
@@ -260,16 +352,62 @@ void settings(){ // Cinquième menu
     displayText("Thèmes", colorTextLight, 50,300,7*movement);
 
     SDL_SetRenderDrawColor(renderer,colorMenu.r,colorMenu.g,colorMenu.b,colorMenu.a);
-    settingsRectTheme1.x=100;settingsRectTheme1.y=400;settingsRectTheme1.w=200;settingsRectTheme1.h=50;
-    settingsRectTheme2.x=350;settingsRectTheme2.y=400;settingsRectTheme2.w=200;settingsRectTheme2.h=50;
-    settingsRectTheme3.x=600;settingsRectTheme3.y=400;settingsRectTheme3.w=200;settingsRectTheme3.h=50;
+    settingsRectTheme1.x=100;settingsRectTheme1.y=350;settingsRectTheme1.w=170;settingsRectTheme1.h=50;
+    settingsRectTheme2.x=315;settingsRectTheme2.y=350;settingsRectTheme2.w=170;settingsRectTheme2.h=50;
+    settingsRectTheme3.x=530;settingsRectTheme3.y=350;settingsRectTheme3.w=170;settingsRectTheme3.h=50;
+    settingsRectTheme4.x=100;settingsRectTheme4.y=450;settingsRectTheme4.w=170;settingsRectTheme4.h=50;
+    settingsRectTheme5.x=315;settingsRectTheme5.y=450;settingsRectTheme5.w=170;settingsRectTheme5.h=50;
+    settingsRectTheme6.x=530;settingsRectTheme6.y=450;settingsRectTheme6.w=170;settingsRectTheme6.h=50;
     SDL_RenderFillRect(renderer,&settingsRectTheme1);
     SDL_RenderFillRect(renderer,&settingsRectTheme2);
     SDL_RenderFillRect(renderer,&settingsRectTheme3);
+    SDL_RenderFillRect(renderer,&settingsRectTheme4);
+    SDL_RenderFillRect(renderer,&settingsRectTheme5);
+    SDL_RenderFillRect(renderer,&settingsRectTheme6);
     displayTextButton("Vert laurier",colorTextMenuUnselected,fontButton,settingsRectTheme1);
     displayTextButton("Gris cendré",colorTextMenuUnselected,fontButton,settingsRectTheme2);
-    displayTextButton("Unknown",colorTextMenuUnselected,fontButton,settingsRectTheme3);
-    SDL_RenderPresent(renderer);    
+    displayTextButton("Nickel",colorTextMenuUnselected,fontButton,settingsRectTheme3);
+    displayTextButton("WIP",colorTextMenuUnselected,fontButton,settingsRectTheme4);
+    displayTextButton("WIP",colorTextMenuUnselected,fontButton,settingsRectTheme5);
+    displayTextButton("WIP",colorTextMenuUnselected,fontButton,settingsRectTheme6);
+    SDL_RenderPresent(renderer);
+
+    if (theme == 1) {
+        SDL_SetRenderDrawColor(renderer,colorMenuClicked.r,colorMenuClicked.g,colorMenuClicked.b,colorMenuClicked.a);
+        SDL_RenderFillRect(renderer,&settingsRectTheme1);
+        displayTextButton("Vert laurier",colorTextMenuSelected,fontButton,settingsRectTheme1);
+        SDL_RenderPresent(renderer);
+    }
+    if (theme == 2){
+        SDL_SetRenderDrawColor(renderer,colorMenuClicked.r,colorMenuClicked.g,colorMenuClicked.b,colorMenuClicked.a);
+        SDL_RenderFillRect(renderer,&settingsRectTheme2);
+        displayTextButton("Gris cendré",colorTextMenuSelected,fontButton,settingsRectTheme2);
+        SDL_RenderPresent(renderer);
+    }
+    if (theme == 3) {
+        SDL_SetRenderDrawColor(renderer,colorMenuClicked.r,colorMenuClicked.g,colorMenuClicked.b,colorMenuClicked.a);
+        SDL_RenderFillRect(renderer,&settingsRectTheme3);
+        displayTextButton("Nickel",colorTextMenuSelected,fontButton,settingsRectTheme3);
+        SDL_RenderPresent(renderer);
+    }
+    if (theme == 4) {
+        SDL_SetRenderDrawColor(renderer,colorMenuClicked.r,colorMenuClicked.g,colorMenuClicked.b,colorMenuClicked.a);
+        SDL_RenderFillRect(renderer,&settingsRectTheme4);
+        displayTextButton("WIP",colorTextMenuSelected,fontButton,settingsRectTheme4);
+        SDL_RenderPresent(renderer);
+    }
+    if (theme == 5) {
+        SDL_SetRenderDrawColor(renderer,colorMenuClicked.r,colorMenuClicked.g,colorMenuClicked.b,colorMenuClicked.a);
+        SDL_RenderFillRect(renderer,&settingsRectTheme5);
+        displayTextButton("WIP",colorTextMenuSelected,fontButton,settingsRectTheme5);
+        SDL_RenderPresent(renderer);
+    }
+    if (theme == 6) {
+        SDL_SetRenderDrawColor(renderer,colorMenuClicked.r,colorMenuClicked.g,colorMenuClicked.b,colorMenuClicked.a);
+        SDL_RenderFillRect(renderer,&settingsRectTheme6);
+        displayTextButton("WIP",colorTextMenuSelected,fontButton,settingsRectTheme6);
+        SDL_RenderPresent(renderer);
+    }
 
 }
 
@@ -277,8 +415,8 @@ int main(int argc, char** argv)
 {
 
     TTF_Init();
-    fontText = TTF_OpenFont("arial.ttf",24);
-    fontButton = TTF_OpenFont("arial.ttf",5);
+    fontText = TTF_OpenFont("arial.ttf",20);
+    fontButton = TTF_OpenFont("arial.ttf",20);
     /* Initialisation simple */
     if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_JOYSTICK) < 0) // Initialisation de la SDL
     {
@@ -334,7 +472,7 @@ int main(int argc, char** argv)
                         if (strlen(data)>0) {
                             data[strlen(data)-1]='\0';
                             eraseText(textRectInputProfil,colorBackground);
-                            displayText(data,colorTextLight,495,150,0*movement);
+                            displayText(data,colorTextLight,inputProfileX + 10,inputProfileY,0*movement);
                         }
                     }
                     if ( event.key.keysym.scancode == SDL_SCANCODE_BACKSPACE && menu == 2) {
@@ -367,7 +505,7 @@ int main(int argc, char** argv)
                     if (strchr("AZERTYUIOPQSDFGHJKLMWXCVBNabcdefghijklmanopqrstuvwxyz-",event.text.text[0])!=NULL && (strlen(data) < 15)){
                         strcat(data, event.text.text);
                         eraseText(textRectInputProfil,colorBackground);
-                        displayText(data,colorTextLight,495,150,0*movement);
+                        displayText(data,colorTextLight,inputProfileX + 10,inputProfileY,0*movement);
                     }
 
                 }
@@ -395,24 +533,62 @@ int main(int argc, char** argv)
                         redrawMenu();
                         settings();
                     }
-                    if(SDL_PointInRect(&mouse, &settingsRectYes)){
-                        movement = 1;
-                        redrawMenu();
-                        settings();
-                    }
-                    if (SDL_PointInRect(&mouse, &settingsRectNo)){
-                        movement = 0;
-                        redrawMenu();
-                        settings();
+                    if(menu == 5){
+                        if(SDL_PointInRect(&mouse, &settingsRectYes)){
+                            movement = 1;
+                            redrawMenu();
+                            settings();
+                        }
+                        if (SDL_PointInRect(&mouse, &settingsRectNo)){
+                            movement = 0;
+                            redrawMenu();
+                            settings();
+                        }
+                        if (SDL_PointInRect(&mouse, &settingsRectTheme1)){
+                            theme = 1;
+                            themes(theme);
+                            redrawMenu();
+                            settings();
+                        }
+                        if (SDL_PointInRect(&mouse, &settingsRectTheme2)){
+                            theme = 2;
+                            themes(theme);
+                            redrawMenu();
+                            settings();
+                        }
+                        if (SDL_PointInRect(&mouse, &settingsRectTheme3)){
+                            theme = 3;
+                            themes(theme);
+                            redrawMenu();
+                            settings();
+                        }
+                        if (SDL_PointInRect(&mouse, &settingsRectTheme4)){
+                            theme = 4;
+                            themes(theme);
+                            redrawMenu();
+                            settings();
+                        }
+                        if (SDL_PointInRect(&mouse, &settingsRectTheme5)){
+                            theme = 5;
+                            themes(theme);
+                            redrawMenu();
+                            settings();
+                        }
+                        if (SDL_PointInRect(&mouse, &settingsRectTheme6)){
+                            theme = 6;
+                            themes(theme);
+                            redrawMenu();
+                            settings();
+                        }
                     }
 
                     for (iProfiles=0;iProfiles<nProfiles;iProfiles++){
-                        if (SDL_PointInRect(&mouse, &textRectProfils[iProfiles])){
+                        if (SDL_PointInRect(&mouse, &textRectProfils[iProfiles]) && menu == 1){
                             strcpy(strProfile,profiles[iProfiles]);
                             SDL_SetRenderDrawColor(renderer,colorMenu.r,colorMenu.g,colorMenu.b,colorMenu.a);
                             SDL_RenderFillRect(renderer,&textRectFooter);
-                            displayText("Vous êtes connecté en tant que ",colorTextDark,260,750,0*movement);
-                            displayText(profiles[iProfiles],colorTextDark,600,750,0*movement);
+                            displayText("Vous êtes connecté en tant que ",colorTextDark,312,755,0*movement);
+                            displayText(profiles[iProfiles],colorTextDark,600,755,0*movement);
                         }
                     }
 
@@ -423,95 +599,97 @@ int main(int argc, char** argv)
                     mouse.y = event.motion.y;
                     if(menu != 1){
                         if(SDL_PointInRect(&mouse,&menuRect1)){
-                            SDL_SetRenderDrawColor(renderer,colorMenuHover.r,colorMenuHover.g,colorMenuHover.b,colorMenuHover.a);
-                            SDL_RenderFillRect(renderer,&menuRect1);
-                            displayTextButton("Connexion",colorTextMenuUnselected,fontButton,menuRect1);
-                            SDL_RenderPresent(renderer);
+                            mouseMotion("Connexion",menuRect1,0);
                         } else {
-                            SDL_SetRenderDrawColor(renderer,colorMenu.r,colorMenu.g,colorMenu.b,colorMenu.a);
-                            SDL_RenderFillRect(renderer,&menuRect1);
-                            displayTextButton("Connexion",colorTextMenuUnselected,fontButton,menuRect1);
-                            SDL_RenderPresent(renderer);
+                            mouseMotion("Connexion",menuRect1,1);
                         }
                     }
                     if(menu != 2){
                         if(SDL_PointInRect(&mouse,&menuRect2)){
-                            SDL_SetRenderDrawColor(renderer,colorMenuHover.r,colorMenuHover.g,colorMenuHover.b,colorMenuHover.a);
-                            SDL_RenderFillRect(renderer,&menuRect2);
-                            displayTextButton("IMC",colorTextMenuUnselected,fontButton,menuRect2);
-                            SDL_RenderPresent(renderer);
+                            mouseMotion("IMC",menuRect2,0);
                         } else {
-                            SDL_SetRenderDrawColor(renderer,colorMenu.r,colorMenu.g,colorMenu.b,colorMenu.a);
-                            SDL_RenderFillRect(renderer,&menuRect2);
-                            displayTextButton("IMC",colorTextMenuUnselected,fontButton,menuRect2);
-                            SDL_RenderPresent(renderer);
+                            mouseMotion("IMC",menuRect2,1);
                         }
                     }
                     if(menu != 3){
                         if(SDL_PointInRect(&mouse,&menuRect3)){
-                            SDL_SetRenderDrawColor(renderer,colorMenuHover.r,colorMenuHover.g,colorMenuHover.b,colorMenuHover.a);
-                            SDL_RenderFillRect(renderer,&menuRect3);
-                            displayTextButton("Statistiques",colorTextMenuUnselected,fontButton,menuRect3);
-                            SDL_RenderPresent(renderer);
+                            mouseMotion("Statistiques",menuRect3,0);
                         } else {
-                            SDL_SetRenderDrawColor(renderer,colorMenu.r,colorMenu.g,colorMenu.b,colorMenu.a);
-                            SDL_RenderFillRect(renderer,&menuRect3);
-                            displayTextButton("Statistiques",colorTextMenuUnselected,fontButton,menuRect3);
-                            SDL_RenderPresent(renderer);
+                            mouseMotion("Statistiques",menuRect3,1);
                         }
                     }
                     if(menu != 4){
                         if(SDL_PointInRect(&mouse,&menuRect4)){
-                            SDL_SetRenderDrawColor(renderer,colorMenuHover.r,colorMenuHover.g,colorMenuHover.b,colorMenuHover.a);
-                            SDL_RenderFillRect(renderer,&menuRect4);
-                            displayTextButton("Profil",colorTextMenuUnselected,fontButton,menuRect4);
-                            SDL_RenderPresent(renderer);
+                            mouseMotion("Profil",menuRect4,0);
                         } else {
-                            SDL_SetRenderDrawColor(renderer,colorMenu.r,colorMenu.g,colorMenu.b,colorMenu.a);
-                            SDL_RenderFillRect(renderer,&menuRect4);
-                            displayTextButton("Profil",colorTextMenuUnselected,fontButton,menuRect4);
-                            SDL_RenderPresent(renderer);
+                            mouseMotion("Profil",menuRect4,1);
                         }
                     }
                     if(menu != 5){
                         if(SDL_PointInRect(&mouse,&menuRect5)){
-                            SDL_SetRenderDrawColor(renderer,colorMenuHover.r,colorMenuHover.g,colorMenuHover.b,colorMenuHover.a);
-                            SDL_RenderFillRect(renderer,&menuRect5);
-                            displayTextButton("Paramètres",colorTextMenuUnselected,fontButton,menuRect5);
-                            SDL_RenderPresent(renderer);
+                            mouseMotion("Paramètres",menuRect5,0);
                         } else {
-                            SDL_SetRenderDrawColor(renderer,colorMenu.r,colorMenu.g,colorMenu.b,colorMenu.a);
-                            SDL_RenderFillRect(renderer,&menuRect5);
-                            displayTextButton("Paramètres",colorTextMenuUnselected,fontButton,menuRect5);
-                            SDL_RenderPresent(renderer);
+                            mouseMotion("Paramètres",menuRect5,1);
                         }
                     }
-                    if(movement != 1 && menu == 5) {
-                        if(SDL_PointInRect(&mouse,&settingsRectYes)){
-                            SDL_SetRenderDrawColor(renderer,colorMenuHover.r,colorMenuHover.g,colorMenuHover.b,colorMenuHover.a);
-                            SDL_RenderFillRect(renderer,&settingsRectYes);
-                            displayTextButton("Oui",colorTextMenuUnselected,fontButton,settingsRectYes);
-                            SDL_RenderPresent(renderer);
-                        } else {
-                            SDL_SetRenderDrawColor(renderer,colorMenu.r,colorMenu.g,colorMenu.b,colorMenu.a);
-                            SDL_RenderFillRect(renderer,&settingsRectYes);
-                            displayTextButton("Oui",colorTextMenuUnselected,fontButton,settingsRectYes);
-                            SDL_RenderPresent(renderer);
+                    if (menu == 5) {
+                        if(movement != 1) {
+                            if(SDL_PointInRect(&mouse,&settingsRectYes)){
+                                mouseMotion("Oui",settingsRectYes,0);
+                            } else {
+                                mouseMotion("Oui",settingsRectYes,1);
+                            }
                         }
-                    } else if (movement != 0 && menu == 5) {
-                        if(SDL_PointInRect(&mouse,&settingsRectNo)){
-                            SDL_SetRenderDrawColor(renderer,colorMenuHover.r,colorMenuHover.g,colorMenuHover.b,colorMenuHover.a);
-                            SDL_RenderFillRect(renderer,&settingsRectNo);
-                            displayTextButton("Non",colorTextMenuUnselected,fontButton,settingsRectNo);
-                            SDL_RenderPresent(renderer);
-                        } else {
-                            SDL_SetRenderDrawColor(renderer,colorMenu.r,colorMenu.g,colorMenu.b,colorMenu.a);
-                            SDL_RenderFillRect(renderer,&settingsRectNo);
-                            displayTextButton("Non",colorTextMenuUnselected,fontButton,settingsRectNo);
-                            SDL_RenderPresent(renderer);
+                        if (movement != 0) {
+                            if(SDL_PointInRect(&mouse,&settingsRectNo)){
+                                mouseMotion("Non",settingsRectNo,0);
+                            } else {
+                                mouseMotion("Non",settingsRectNo,1);
+                            }
+                        }
+                        if (theme != 1) {
+                            if(SDL_PointInRect(&mouse,&settingsRectTheme1)){
+                                mouseMotion("Vert laurier",settingsRectTheme1,0);
+                            } else {
+                                mouseMotion("Vert laurier",settingsRectTheme1,1);
+                            }
+                        }
+                        if (theme != 2) {
+                            if(SDL_PointInRect(&mouse,&settingsRectTheme2)){
+                                mouseMotion("Gris cendré",settingsRectTheme2,0);
+                            } else {
+                                mouseMotion("Gris cendré",settingsRectTheme2,1);
+                            }
+                        }
+                        if (theme != 3) {
+                            if(SDL_PointInRect(&mouse,&settingsRectTheme3)){
+                                mouseMotion("Nickel",settingsRectTheme3,0);
+                            } else {
+                                mouseMotion("Nickel",settingsRectTheme3,1);
+                            }
+                        }
+                        if (theme != 4) {
+                            if(SDL_PointInRect(&mouse,&settingsRectTheme4)){
+                                mouseMotion("WIP",settingsRectTheme4,0);
+                            } else {
+                                mouseMotion("WIP",settingsRectTheme4,1);
+                            }
+                        }
+                        if (theme != 5) {
+                            if(SDL_PointInRect(&mouse,&settingsRectTheme5)){
+                                mouseMotion("WIP",settingsRectTheme5,0);
+                            } else {
+                                mouseMotion("WIP",settingsRectTheme5,1);
+                            }
+                        }
+                        if (theme != 6) {
+                            if(SDL_PointInRect(&mouse,&settingsRectTheme6)){
+                                mouseMotion("WIP",settingsRectTheme6,0);
+                            } else {
+                                mouseMotion("WIP",settingsRectTheme6,1);
+                            }
                         }
                     }
-
                 }
 
             }
@@ -523,7 +701,7 @@ int main(int argc, char** argv)
                     returnKey = 0;
                     SDL_SetRenderDrawColor(renderer,colorProfiles.r,colorProfiles.g,colorProfiles.b,colorProfiles.a);
                     SDL_RenderFillRect(renderer,&textRectProfils[nProfiles]);
-                    displayText(profiles[nProfiles],colorTextLight,50,100+50*nProfiles,5*movement);
+                    displayText(profiles[nProfiles],colorTextLight,510,150+50*nProfiles,5*movement);
                     nProfiles++;
                     //suppression caractères
                     eraseText(textRectInputProfil,colorBackground);
@@ -564,8 +742,21 @@ int main(int argc, char** argv)
 
                         nIMC=10000*nWeight/(nSize*nSize);
                         sprintf(data,"%.2f",nIMC);
-                        displayText("Votre IMC est de :",colorTextLight,50,300,1*movement);
+                        displayText("Votre IMC est de :",colorTextLight,50,300,3*movement);
                         displayText(data,colorTextLight,250,300,1*movement);
+                        if (nIMC <= 18.5 && nIMC !=0 ) {
+                            displayText("Vous êtes en insuffisance pondérale !!",colorTextLight,60,350,3*movement);
+                        } else if (nIMC > 18.5 && nIMC <= 25 ) {
+                            displayText("Vous avez une corpulence normale",colorTextLight,60,350,3*movement);
+                        } else if (nIMC > 25  && nIMC <= 30 ) {
+                            displayText("Vous êtes en surpoid, faites attention",colorTextLight,60,350,3*movement);
+                        } else if (nIMC > 30  && nIMC <= 35 ) {
+                            displayText("Vous êtes en état d'obésité modérée, faites attention",colorTextLight,60,350,3*movement);
+                        } else if (nIMC > 35 && nIMC <= 40) {
+                            displayText("Vous êtes en état d'obésité sévère, il y a urgence !!!",colorTextLight,60,350,3*movement);
+                        } else {
+                            displayText("Vous êtes en état d'obésité morbide, il faut vraiment faire quelque chose !!!",colorTextLight,60,350,3*movement);
+                        }
                         strcpy(data,"");
                         SDL_StopTextInput();
                         }
