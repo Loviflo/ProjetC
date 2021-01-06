@@ -7,6 +7,7 @@
 #include <SDL2/SDL_image.h>
 
 MYSQL mysql;
+
 int nMaxProfiles=12;
 char profiles[25][15]; //Tableau de profiles
 int nProfiles=0; //Nombre de profiles
@@ -27,6 +28,8 @@ int movement = 1;
 int theme = 1;
 int inputProfileX = 220;
 int inputProfileY = 100;
+int initMysql = 1;
+MYSQL mysql2;
 TTF_Font *fontButton = NULL;
 TTF_Font *fontText = NULL;
 SDL_Color colorTextMenuSelected;
@@ -287,6 +290,8 @@ void formProfile(){ // Premier menu
 
 void formIMC(){ // Deuxième menu
 
+
+
     SDL_SetRenderDrawColor(renderer,colorMenuClicked.r,colorMenuClicked.g,colorMenuClicked.b,colorMenuClicked.a);
     SDL_RenderFillRect(renderer,&menuRect2);
     displayTextButton("IMC",colorTextMenuSelected,fontButton,menuRect2);
@@ -318,11 +323,13 @@ void formIMC(){ // Deuxième menu
 
 void statistics(){ // Troisième menu
 
+    int nLoopStats;
     SDL_SetRenderDrawColor(renderer,colorMenuClicked.r,colorMenuClicked.g,colorMenuClicked.b,colorMenuClicked.a);
     SDL_RenderFillRect(renderer,&menuRect3);
     displayTextButton("Statistiques",colorTextMenuSelected,fontButton,menuRect3);
     SDL_RenderPresent(renderer);
     menu = 3;
+
 
 }
 
@@ -407,25 +414,27 @@ void settings(){ // Cinquième menu
 int main(int argc, char** argv)
 {
     mysql_init(&mysql);
-    //mysql_options(&mysql,MYSQL_,"option");
+
+    //my_bool reconnect = 0;
+    //mysql_options(&mysql,MYSQL_OPT_RECONNECT,&reconnect);
     mysql_real_connect(&mysql,"localhost","root","root","projetc",3306,NULL,0);
     // Récupération des utilisateurs
-        mysql_query(&mysql, "SELECT * FROM profil_util");
-        //Déclaration des objets
-        MYSQL_RES *result = NULL;
-        MYSQL_ROW row;
-        //On met le jeu de résultat dans le pointeur result
-        result = mysql_use_result(&mysql);
-                //Tant qu'il y a encore un résultat ...
-        nProfiles = 0;
-        while ((row = mysql_fetch_row(result))) {
-            unsigned long *lengths;
-            lengths = mysql_fetch_lengths(result);
-            //On ecrit toutes les valeurs
-            strcpy(profiles[nProfiles],row[0]);
-            nProfiles++;
-        }
-        mysql_free_result(result);
+    mysql_query(&mysql, "SELECT * FROM profil_util");
+    //Déclaration des objets
+    MYSQL_RES *result = NULL;
+    MYSQL_ROW row;
+    //On met le jeu de résultat dans le pointeur result
+    result = mysql_use_result(&mysql);
+            //Tant qu'il y a encore un résultat ...
+    nProfiles = 0;
+    while ((row = mysql_fetch_row(result))) {
+        unsigned long *lengths;
+        lengths = mysql_fetch_lengths(result);
+        //On ecrit toutes les valeurs
+        strcpy(profiles[nProfiles],row[0]);
+        nProfiles++;
+    }
+    mysql_free_result(result);
 
     TTF_Init();
     fontText = TTF_OpenFont("arial.ttf",20);
@@ -726,7 +735,7 @@ int main(int argc, char** argv)
                     if(mysql_query(&mysql, requete) != 0){
                         printf(mysql_error(&mysql));
                     }
-
+                    strcpy(requete,"");
                     //suppression caractères
                     eraseText(textRectInputProfil,colorBackground);
                     nProfiles++;
@@ -785,11 +794,26 @@ int main(int argc, char** argv)
                         } else {
                             displayText("Vous êtes en état d'obésité morbide, il faut vraiment faire quelque chose !!!",colorTextLight,60,350,3*movement);
                         }
+
+                        char requete3[150] = "";
+                        sprintf(requete3, "INSERT INTO corps VALUES('%s',%f,%f,%.2f,%.1f)",strProfile,nWeight,nSize,nIMC,nAge);
+                        printf(requete3);
+
+                        //mysql_init(&mysql2);
+
+                        mysql_real_connect(&mysql,"localhost","root","root","projetc",3306,NULL,0);
+
+                           if(mysql_query(&mysql, requete3) != 0){
+                            printf(mysql_error(&mysql));
+                            }
+                        strcpy(requete3,"");
+
+
                         strcpy(data,"");
                         SDL_StopTextInput();
-                        }
-                    loopIMC=loopIMC+1;
                     }
+                    loopIMC=loopIMC+1;
+                }
             }
         }
 
