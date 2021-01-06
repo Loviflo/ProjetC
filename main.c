@@ -319,18 +319,41 @@ void formIMC(){ // Deuxième menu
     //strcpy(data,"");
     SDL_StartTextInput();
 
+
 }
 
 void statistics(){ // Troisième menu
 
-    int nLoopStats;
+    int nLoopStats = 1;
     SDL_SetRenderDrawColor(renderer,colorMenuClicked.r,colorMenuClicked.g,colorMenuClicked.b,colorMenuClicked.a);
     SDL_RenderFillRect(renderer,&menuRect3);
     displayTextButton("Statistiques",colorTextMenuSelected,fontButton,menuRect3);
     SDL_RenderPresent(renderer);
     menu = 3;
+/*
+    //mysql_real_connect(&mysql,"localhost","root","root","projetc",3306,NULL,0);
+    mysql_query(&mysql, "SELECT nom_utilisateur, poids, taille, IMC FROM corps LIMIT 12");
+    //Déclaration des objets
+    MYSQL_RES *result = NULL;
+    MYSQL_ROW row;
+    unsigned int num_champs = 0;
 
-
+    //On met le jeu de résultat dans le pointeur result
+    result = mysql_use_result(&mysql);
+    num_champs = mysql_num_fields(result);
+    //Tant qu'il y a encore un résultat ...
+    while ((row = mysql_fetch_row(result))){
+        for(int i = 0; i < num_champs; i++)
+        {
+            //On ecrit toutes les valeurs
+        SDL_SetRenderDrawColor(renderer,colorProfiles.r,colorProfiles.g,colorProfiles.b,colorProfiles.a);
+        SDL_RenderFillRect(renderer,&textRectProfils[nProfiles]);
+        displayText(row[i],colorTextLight,50+80*i,150+50*(nLoopStats),7*movement);
+        }
+        nLoopStats++;
+    }
+    mysql_free_result(result);
+*/
 }
 
 void profile(){ // Quatrième menu
@@ -344,11 +367,7 @@ void profile(){ // Quatrième menu
 }
 
 void settings(){ // Cinquième menu
-
-    SDL_SetRenderDrawColor(renderer,colorMenuClicked.r,colorMenuClicked.g,colorMenuClicked.b,colorMenuClicked.a);
-    SDL_RenderFillRect(renderer,&menuRect5);
-    displayTextButton("Paramètres",colorTextMenuSelected,fontButton,menuRect5);
-    SDL_RenderPresent(renderer);
+    mouseMotion("Paramètres",menuRect5,2);
     menu = 5;
 
     displayText("Activer le défilement ?", colorTextLight,50,100,7*movement);
@@ -545,15 +564,15 @@ int main(int argc, char** argv)
                         redrawMenu();
                         formProfile();
                     }
-                    if(SDL_PointInRect(&mouse, &menuRect2)) {
+                    if(SDL_PointInRect(&mouse, &menuRect2) && strcmp(strProfile,"") != 0) {
                         redrawMenu();
                         formIMC();
                     }
-                    if(SDL_PointInRect(&mouse, &menuRect3)) {
+                    if(SDL_PointInRect(&mouse, &menuRect3) && strcmp(strProfile,"") != 0) {
                         redrawMenu();
                         statistics();
                     }
-                    if(SDL_PointInRect(&mouse, &menuRect4)){
+                    if(SDL_PointInRect(&mouse, &menuRect4) && strcmp(strProfile,"") != 0) {
                         redrawMenu();
                         profile();
                     }
