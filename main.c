@@ -53,7 +53,7 @@ SDL_Texture *labelIMC1;
 SDL_Texture *labelIMC2;
 SDL_Texture *labelIMC3;
 SDL_Texture *labelIMC4;
-SDL_Texture *imgICMTexture;
+SDL_Texture *imgIMCTexture;
 SDL_Renderer* renderer; // Déclaration du renderer
 SDL_Window *window;
 SDL_Point mouse;
@@ -136,10 +136,6 @@ void displayText(char *strText,SDL_Color fontColor, int xPos,int yPos,int iSpeed
     }
     SDL_FreeSurface(sTexte);
     SDL_DestroyTexture(tTexte);
-}
-
-void displayIMG(SDL_Surface surface,int xPos,int yPos) {
-
 }
 
 void redrawMenu(){
@@ -303,6 +299,12 @@ void formIMC(){ // Deuxième menu
 // Affichage troisième question
     displayText("Entrez votre taille (en cm) :",colorTextLight,50,200,7*movement);
 
+    //SDL_Surface *imgIMC = IMG_Load("unnamed.jpg");
+    //SDL_Surface* imageIMC = SDL_CreateTextureFromSurface(renderer,imgIMC);
+    //imgIMCTexture.x=100;imgIMCTexture.y=300;imgIMCTexture.w=300;imgIMCTexture.h=300;
+    //imgIMCTexture = {100,300,300,300};
+    //SDL_RenderCopy(renderer, imgIMC,imageIMC, &imgIMCTexture);
+    //SDL_RenderPresent(renderer);
     loopIMC = 1;
     returnKey = 0;
 
@@ -415,8 +417,8 @@ int main(int argc, char** argv)
     TTF_Init();
     fontText = TTF_OpenFont("arial.ttf",20);
     fontButton = TTF_OpenFont("arial.ttf",20);
-//    SDL_Surface *logo = IMG_Load("Yuka.jpg");
-  //  SDL_Surface *imgIMC = IMG_Load("unnamed.jpg");
+    SDL_Surface *logo = IMG_Load("Yuka.jpg");
+
 
     /* Initialisation simple */
     if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_JOYSTICK) < 0) // Initialisation de la SDL
@@ -433,8 +435,8 @@ int main(int argc, char** argv)
         printf("Erreur lors de la creation d'une fenetre : %s",SDL_GetError());
         return -1;
     }
-//    SDL_SetWindowIcon(window,logo);
-//    SDL_FreeSurface(logo);
+    SDL_SetWindowIcon(window,logo);
+    SDL_FreeSurface(logo);
 
 // Création du renderer :
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC); // Création du renderer
@@ -719,9 +721,6 @@ state2=0;
         //Tant qu'il y a encore un résultat ...
         while ((row = mysql_fetch_row(result)))
               {
-                    unsigned long *lengths;
-                    lengths = mysql_fetch_lengths(result);
-
                     for(int i = 0; i < num_champs; i++)
             {
                //On ecrit toutes les valeurs
@@ -865,8 +864,6 @@ mysql_close(&mysql);}
                 displayText(strProfile,colorTextLight,400,180,3*movement);
                 }}
 
-
-
             if (menu == 3){
 
                 if( state == 0){displayText("Veuilliez vous connecter via la page de connexion",colorTextLight,140,350,3*movement);}
@@ -890,9 +887,7 @@ mysql_close(&mysql);}
                     strcpy(requete6,"");
                     MYSQL_RES *result3 = NULL;
                     MYSQL_ROW row;
-                    unsigned int num_champs3 = 0;
                     result3 = mysql_use_result(&mysql3);
-                    num_champs3 = mysql_num_fields(result3);
                      while ((row = mysql_fetch_row(result3)))
               { for(int i = 0; i < 1; i++)
             { int colonne = 180;
@@ -940,29 +935,5 @@ SDL_Quit();
 TTF_CloseFont(fontButton); /* Doit être avant TTF_Quit() */
 SDL_FreeSurface(texte);
 TTF_Quit();
-
-/*
-    MYSQL mysql;
-    mysql_init(&mysql);
-    mysql_options(&mysql,MYSQL_READ_DEFAULT_GROUP,"option");
-
-    if(mysql_real_connect(&mysql,"localhost","root","root","projetc",0,NULL,0))
-       {
-            //Fermeture de MySQL
-           mysql_close(&mysql);
-       }
-    else
-    {
-       printf("Une erreur s'est produite lors de la connexion à la BDD !\n");
-    }
-
-    printf("Rentrer votre poids : ");
-    scanf("%f", &weight);
-    printf("Rentrer votre taille : ");
-    scanf("%f", &size);
-    size = size / 100;
-    imc = weight/(size*size);
-    printf("Votre IMC : %.1f", imc);
-*/
     return 0;
 }
