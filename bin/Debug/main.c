@@ -3,7 +3,7 @@ Nom ......... : Projet.c
 
 Auteur ...... : Vivian RUHLMANN et Van-Cedric SUY
 Date ........ : 06/01/2020
-Matiere ..... : Programmation C
+Matiere ..... : Programation C
 
 Description :
 Application de suivi nutritionel
